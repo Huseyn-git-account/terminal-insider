@@ -1,0 +1,1319 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0a0e1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Terminal Insider</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0e1a;--card:#141929;--card-border:#1e2a3a;--accent:#4f9eff;--accent-hover:#3a8aee;--warning:#ff4d4d;--pro:#00c896;--info:#ffd166;--text:#e8edf5;--text-secondary:#8892a8;--text-muted:#5a6480;--nav-bg:#0d1224;--nav-border:#1a2440;--radius:16px;--radius-sm:10px;--shadow:0 4px 24px rgba(0,0,0,0.3);--font:'Instrument Sans',-apple-system,BlinkMacSystemFont,sans-serif;--safe-bottom:env(safe-area-inset-bottom,0px)}
+html{height:100%;scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;padding-bottom:calc(72px + var(--safe-bottom))}
+#app{max-width:480px;margin:0 auto;position:relative;min-height:100vh;min-height:100dvh}
+#header{position:sticky;top:0;z-index:100;padding:16px 16px 8px;background:var(--bg);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+#header-title{font-size:22px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px}
+#header-title span{color:var(--accent)}
+#header-controls{display:flex;align-items:center;gap:4px}
+.ctrl-btn{background:none;border:none;color:var(--text-secondary);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;transition:background .2s,color .2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.ctrl-btn:active{background:var(--card)}
+.ctrl-btn.active{color:var(--accent)}
+.lang-switch{background:var(--card);border:1px solid var(--card-border);border-radius:20px;padding:4px;display:flex;gap:2px}
+.lang-btn{background:none;border:none;color:var(--text-secondary);padding:4px 10px;border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;font-family:var(--font)}
+.lang-btn.active{background:var(--accent);color:#fff}
+.sound-btn{font-size:18px}
+#search-bar{padding:0 16px 12px;position:sticky;top:0;z-index:99;background:var(--bg)}
+#search-input{width:100%;padding:12px 16px 12px 44px;background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius-sm);color:var(--text);font-size:15px;font-family:var(--font);outline:none;transition:border-color .2s}
+#search-input:focus{border-color:var(--accent)}
+#search-input::placeholder{color:var(--text-muted)}
+#search-bar{position:relative}
+#search-icon{position:absolute;left:28px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;font-size:18px}
+.screen{display:none;padding:0 16px 16px;animation:fadeIn .25s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideInRight{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideOutLeft{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-40px)}}
+@keyframes bounceIn{0%{opacity:0;transform:scale(0.9)}60%{transform:scale(1.03)}100%{opacity:1;transform:scale(1)}}
+@keyframes heartbeat{0%{transform:scale(1)}25%{transform:scale(1.3)}50%{transform:scale(1)}75%{transform:scale(1.15)}100%{transform:scale(1)}}
+.screen-exit{animation:slideOutLeft .2s ease forwards}
+.screen-enter{animation:slideInRight .25s ease forwards}
+#continent-filter{display:flex;gap:8px;overflow-x:auto;padding:0 16px 12px;scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch}
+#continent-filter::-webkit-scrollbar{display:none}
+.continent-chip{flex-shrink:0;padding:8px 16px;border-radius:20px;background:var(--card);border:1px solid var(--card-border);color:var(--text-secondary);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap;-webkit-tap-highlight-color:transparent;touch-action:manipulation;font-family:var(--font)}
+.continent-chip:active{transform:scale(.96)}
+.continent-chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+#airport-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding-bottom:16px}
+.airport-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden}
+.airport-card:active{transform:scale(.97)}
+.airport-card .flag{font-size:28px;line-height:1}
+.airport-card .code{font-size:20px;font-weight:700;color:var(--text);letter-spacing:1px}
+.airport-card .city{font-size:13px;color:var(--text-secondary);font-weight:500}
+.airport-card .country{font-size:12px;color:var(--text-muted)}
+.airport-card .meta{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+.stress-dots{display:flex;gap:3px}
+.stress-dot{width:6px;height:6px;border-radius:50%;background:var(--card-border)}
+.stress-dot.filled{background:var(--warning)}
+.stress-dot.filled.easy{background:var(--pro)}
+.stress-dot.filled.medium{background:var(--info)}
+.stress-dot.filled.hard{background:var(--warning)}
+.tip-badge{background:var(--accent);color:#fff;font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px}
+#airport-header{display:flex;align-items:center;gap:12px;padding:8px 0 12px}
+#back-btn{background:none;border:none;color:var(--text-secondary);font-size:24px;cursor:pointer;padding:4px;display:flex;transition:color .2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+#back-btn:active{color:var(--text)}
+#airport-hero{margin:0 -16px 16px;padding:24px 16px;background:linear-gradient(180deg,var(--card),transparent);border-bottom:1px solid var(--card-border);display:flex;flex-direction:column;gap:4px}
+#airport-hero .flag{font-size:48px}
+#airport-hero .code{font-size:36px;font-weight:700;letter-spacing:2px}
+#airport-hero .location{font-size:15px;color:var(--text-secondary)}
+#airport-hero .quick-info{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap}
+.quick-chip{padding:6px 12px;border-radius:8px;background:var(--card);border:1px solid var(--card-border);font-size:12px;color:var(--text-secondary);font-weight:500}
+#category-filter{display:flex;gap:8px;overflow-x:auto;padding:0 0 12px;scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;position:sticky;top:0;z-index:10;background:var(--bg);margin:0 -16px;padding:0 16px 12px}
+#category-filter::-webkit-scrollbar{display:none}
+.cat-chip{flex-shrink:0;padding:7px 14px;border-radius:16px;background:var(--card);border:1px solid var(--card-border);color:var(--text-secondary);font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap;-webkit-tap-highlight-color:transparent;touch-action:manipulation;font-family:var(--font)}
+.cat-chip:active{transform:scale(.96)}
+.cat-chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+#tips-list{display:flex;flex-direction:column;gap:12px;padding-bottom:24px}
+.tip-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:16px;position:relative;overflow:hidden;transition:all .2s;animation:fadeIn .3s ease forwards;opacity:0}
+.tip-card.show{opacity:1}
+.tip-card .severity-bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.tip-card .severity-bar.warning{background:var(--warning)}
+.tip-card .severity-bar.pro{background:var(--pro)}
+.tip-card .severity-bar.info{background:var(--info)}
+.tip-card .tip-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.tip-card .tip-category{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px}
+.tip-card .tip-category .icon{font-size:14px}
+.tip-card .save-btn{background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;padding:6px;transition:color .2s;line-height:1;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.tip-card .save-btn:active{transform:scale(1.2)}
+.tip-card .save-btn.saved{color:var(--warning)}
+.tip-card .save-btn.animate{animation:heartbeat .4s ease}
+.tip-card .tip-text{font-size:15px;line-height:1.6;color:var(--text);padding-right:8px}
+.tip-card .tip-text.expandable{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
+.tip-card .tip-text.expanded{-webkit-line-clamp:unset}
+.tip-card .tip-expand-hint{color:var(--accent);font-size:12px;margin-top:4px;cursor:pointer;background:none;border:none;font-family:var(--font);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+#search-screen .search-header{display:flex;align-items:center;gap:8px;padding-bottom:12px}
+#search-screen #search-input-lg{flex:1;padding:12px 16px;background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius-sm);color:var(--text);font-size:15px;font-family:var(--font);outline:none;transition:border-color .2s}
+#search-screen #search-input-lg:focus{border-color:var(--accent)}
+#search-screen #search-input-lg::placeholder{color:var(--text-muted)}
+#search-cancel-btn{background:none;border:none;color:var(--accent);font-size:14px;font-weight:500;cursor:pointer;font-family:var(--font);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.search-section-title{font-size:14px;font-weight:600;color:var(--text-secondary);padding:8px 0;text-transform:uppercase;letter-spacing:.5px}
+.search-result-item{padding:12px 0;border-bottom:1px solid var(--card-border);cursor:pointer;transition:background .2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.search-result-item:active{background:var(--card);margin:0 -16px;padding:12px 16px;border-radius:var(--radius-sm)}
+.search-result-item .result-title{font-size:15px;font-weight:600;color:var(--text)}
+.search-result-item .result-sub{font-size:13px;color:var(--text-muted);margin-top:2px}
+.search-result-item .result-preview{font-size:13px;color:var(--text-secondary);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#popular-searches{display:flex;gap:8px;flex-wrap:wrap;padding:8px 0}
+.popular-tag{padding:6px 14px;border-radius:14px;background:var(--card);border:1px solid var(--card-border);color:var(--text-secondary);font-size:13px;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;font-family:var(--font)}
+.popular-tag:active{background:var(--accent);color:#fff}
+#search-results{padding-top:8px}
+#saved-header{display:flex;align-items:center;justify-content:space-between;padding-bottom:12px}
+#saved-header h2{font-size:20px;font-weight:700}
+#clear-saved-btn{background:none;border:none;color:var(--warning);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+#saved-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center;gap:12px}
+#saved-empty .icon{font-size:64px;opacity:.3}
+#saved-empty h3{font-size:18px;color:var(--text-secondary)}
+#saved-empty p{font-size:14px;color:var(--text-muted);max-width:260px}
+.saved-group{margin-bottom:16px}
+.saved-group-title{font-size:13px;font-weight:600;color:var(--accent);padding:8px 0 4px}
+#bottom-nav{position:fixed;bottom:0;left:0;right:0;height:calc(64px + var(--safe-bottom));padding-bottom:var(--safe-bottom);background:var(--nav-bg);border-top:1px solid var(--nav-border);display:flex;align-items:center;justify-content:space-around;z-index:200;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);max-width:480px;margin:0 auto}
+.nav-item{background:none;border:none;color:var(--text-muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px 12px;cursor:pointer;transition:color .2s;position:relative;-webkit-tap-highlight-color:transparent;touch-action:manipulation;min-height:48px;font-family:var(--font)}
+.nav-item .nav-icon{font-size:22px;line-height:1}
+.nav-item .nav-label{font-size:10px;font-weight:500}
+.nav-item.active{color:var(--accent)}
+.nav-item.active::after{content:'';position:absolute;top:-1px;left:50%;transform:translateX(-50%);width:24px;height:3px;border-radius:2px;background:var(--accent);animation:fadeIn .2s ease}
+.skeleton{background:linear-gradient(90deg,var(--card) 25%,var(--card-border) 50%,var(--card) 75%);background-size:200% 100%;animation:shimmer 1.2s ease infinite;border-radius:var(--radius-sm)}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skeleton-card{height:120px;margin-bottom:12px}
+#disclaimer{padding:24px 16px 16px;text-align:center;border-top:1px solid var(--card-border);margin-top:16px}
+#disclaimer p{font-size:12px;color:var(--text-muted);line-height:1.5}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--card-border);border-radius:2px}
+@media(min-width:768px){#app{max-width:600px}#airport-grid{grid-template-columns:1fr 1fr 1fr}.airport-card{padding:20px}.airport-card .code{font-size:22px}}
+@media(min-width:1024px){#app{max-width:720px}#airport-grid{grid-template-columns:1fr 1fr 1fr}}
+</style></head>
+<body>
+<div id="app">
+<div id="header">
+<div id="header-title">Terminal <span>Insider</span></div>
+<div id="header-controls">
+<button class="ctrl-btn sound-btn" id="sound-toggle" aria-label="Toggle sound">🔇</button>
+<div class="lang-switch">
+<button class="lang-btn active" data-lang="en">EN</button>
+<button class="lang-btn" data-lang="ru">RU</button>
+</div></div></div>
+<div id="search-bar"><span id="search-icon">🔍</span><input type="search" id="search-input" placeholder="Search airports..." autocomplete="off"></div>
+<div id="continent-filter"></div>
+<div id="screen-home" class="screen active"><div id="airport-grid"></div></div>
+<div id="screen-airport" class="screen">
+<div id="airport-header"><button id="back-btn">←</button><span id="airport-header-title" style="font-weight:600;font-size:16px">Airport</span></div>
+<div id="airport-hero"></div>
+<div id="category-filter"></div>
+<div id="tips-list"></div>
+</div>
+<div id="screen-search" class="screen">
+<div class="search-header"><input type="search" id="search-input-lg" placeholder="Search airports and tips..." autocomplete="off"><button id="search-cancel-btn">Cancel</button></div>
+<div id="popular-searches"></div><div id="search-results"></div>
+</div>
+<div id="screen-saved" class="screen">
+<div id="saved-header"><h2 id="saved-title">Saved Tips</h2><button id="clear-saved-btn">Clear All</button></div>
+<div id="saved-list"></div>
+<div id="saved-empty"><div class="icon">💾</div><h3>No saved tips yet</h3><p>Save tips for your next trip — tap the heart icon on any tip</p></div>
+</div>
+<div id="disclaimer"><p id="disclaimer-text">Tips sourced from Reddit, TripAdvisor, FlyerTalk and real traveler experiences. Always verify critical info before travel.</p></div>
+</div>
+<nav id="bottom-nav">
+<button class="nav-item active" data-screen="home"><span class="nav-icon">🏠</span><span class="nav-label" data-tkey="nav-home">Home</span></button>
+<button class="nav-item" data-screen="search"><span class="nav-icon">🔍</span><span class="nav-label" data-tkey="nav-search">Search</span></button>
+<button class="nav-item" data-screen="saved"><span class="nav-icon">⭐</span><span class="nav-label" data-tkey="nav-saved">Saved</span></button>
+<button class="nav-item" data-screen="language"><span class="nav-icon">🌐</span><span class="nav-label" data-tkey="nav-lang">Language</span></button>
+</nav>
+<script>
+const T={en:{'app-title':'Terminal Insider','app-title-accent':'Insider','search-placeholder':'Search airports...','search-placeholder-lg':'Search airports and tips...','search-cancel':'Cancel','saved-title':'Saved Tips','saved-empty-title':'No saved tips yet','saved-empty-text':'Save tips for your next trip — tap the heart icon on any tip','clear-all':'Clear All','nav-home':'Home','nav-search':'Search','nav-saved':'Saved','nav-lang':'Language','continent-all':'All','continent-americas':'Americas','continent-europe':'Europe','continent-asia':'Asia','continent-middle-east':'Middle East','continent-africa-oceania':'Africa & Oceania','cat-all':'All','cat-transport':'Transport','cat-money':'Money','cat-wifi':'WiFi','cat-charging':'Charging','cat-food':'Food','cat-sleep':'Sleep','cat-luggage':'Luggage','cat-scams':'Scams','cat-immigration':'Immigration','cat-navigation':'Navigation','cat-sim':'SIM Cards','tips':'tips','terminals':'Terminals','difficulty':'Difficulty','back':'Back','disclaimer':'Tips sourced from Reddit, TripAdvisor, FlyerTalk and real traveler experiences. Always verify critical info before travel.','tap-expand':'Tap to expand','tap-collapse':'Show less','popular-searches':'Popular searches','search-results-airports':'Airports','search-results-tips':'Tips','no-results':'No results found','sound-on':'Sound ON','sound-off':'Sound OFF','recent-searches':'Recent','clear-recent':'Clear'},
+ru:{'app-title':'Terminal Insider','app-title-accent':'Insider','search-placeholder':'Поиск аэропортов...','search-placeholder-lg':'Поиск аэропортов и советов...','search-cancel':'Отмена','saved-title':'Сохранённые советы','saved-empty-title':'Сохранённых советов нет','saved-empty-text':'Сохраняйте советы для поездки — нажмите на сердечко у любого совета','clear-all':'Удалить всё','nav-home':'Главная','nav-search':'Поиск','nav-saved':'Сохранённые','nav-lang':'Язык','continent-all':'Все','continent-americas':'Америка','continent-europe':'Европа','continent-asia':'Азия','continent-middle-east':'Ближний Восток','continent-africa-oceania':'Африка и Океания','cat-all':'Все','cat-transport':'Транспорт','cat-money':'Деньги','cat-wifi':'WiFi','cat-charging':'Зарядка','cat-food':'Еда','cat-sleep':'Сон','cat-luggage':'Багаж','cat-scams':'Мошенники','cat-immigration':'Паспортный контроль','cat-navigation':'Навигация','cat-sim':'SIM-карты','tips':'советов','terminals':'Терминалы','difficulty':'Сложность','back':'Назад','disclaimer':'Советы основаны на Reddit, TripAdvisor, FlyerTalk и реальном опыте путешественников. Всегда проверяйте важную информацию перед поездкой.','tap-expand':'Развернуть','tap-collapse':'Свернуть','popular-searches':'Популярные запросы','search-results-airports':'Аэропорты','search-results-tips':'Советы','no-results':'Ничего не найдено','sound-on':'Звук вкл','sound-off':'Звук выкл','recent-searches':'Недавние','clear-recent':'Очистить'}};
+const continents=['all','americas','europe','asia','middle-east','africa-oceania'];
+const categories=['all','transport','money','wifi','charging','food','sleep','luggage','scams','immigration','navigation','sim'];
+const categoryIcons={transport:'🚕',money:'💵',wifi:'📶',charging:'🔋',food:'🍜',sleep:'😴',luggage:'🧳',scams:'⚠️',immigration:'🛃',navigation:'🧭',sim:'📱'};
+const continentNames={en:{all:'All',americas:'Americas',europe:'Europe',asia:'Asia','middle-east':'Middle East','africa-oceania':'Africa & Oceania'},ru:{all:'Все',americas:'Америка',europe:'Европа',asia:'Азия','middle-east':'Ближний Восток','africa-oceania':'Африка и Океания'}};
+const catNames={en:{all:'All',transport:'Transport',money:'Money',wifi:'WiFi',charging:'Charging',food:'Food',sleep:'Sleep',luggage:'Luggage',scams:'Scams',immigration:'Immigration',navigation:'Navigation',sim:'SIM Cards'},ru:{all:'Все',transport:'Транспорт',money:'Деньги',wifi:'WiFi',charging:'Зарядка',food:'Еда',sleep:'Сон',luggage:'Багаж',scams:'Мошенники',immigration:'Паспортный контроль',navigation:'Навигация',sim:'SIM-карты'}};
+// 45 airports with tips
+const airports=[
+{code:'JFK',city:'New York',country:'USA',countryRu:'США',flag:'🇺🇸',terminals:6,difficulty:4,continent:'americas',tips:[
+{category:'transport',severity:'warning',text_en:'NYC yellow taxi to Manhattan is a flat $70 (2025) — ignore drivers offering "special price". Avoid limo scammers in arrivals claiming your Uber cancelled.',text_ru:'Жёлтое такси Нью-Йорка до Манхэттена — фиксированные $70 (2025). Игнорируйте водителей, предлагающих «особую цену». Остерегайтесь мошенников в лимузинах, которые говорят, что ваш Uber отменён.'},
+{category:'transport',severity:'info',text_en:'AirTrain JFK to Jamaica Station then subway is ~$8 total to Manhattan. Takes 50-70min but reliable. Leave extra time nights/weekends when subway runs less frequently.',text_ru:'AirTrain JFK до станции Jamaica, затем метро — ~$8 до Манхэттена. Занимает 50–70 минут, но надёжно. Добавьте запас времени ночью и в выходные, когда метро ходит реже.'},
+{category:'money',severity:'warning',text_en:'Currency exchange booths in arrivals have terrible rates (up to 15% markup). Walk to a Travelex in departures or use the ATMs after baggage claim — they give much better rates.',text_ru:'Обменники в зоне прилёта грабительские (наценка до 15%). Идите в Travelex в зоне вылета или используйте банкоматы после выдачи багажа — курс значительно лучше.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "BOOST-WiFi" with a 30-min ad-supported session. For unlimited free WiFi, use the "Free unlimited WiFi" terminal — select the option to watch a 30s ad. Speed is decent (20 Mbps).',text_ru:'Бесплатный WiFi «BOOST-WiFi» — сессия 30 минут с рекламой. Для безлимита используйте «Free unlimited WiFi» — посмотрите 30-секундную рекламу. Скорость приличная (20 Мбит/с).'},
+{category:'charging',severity:'info',text_en:'Charging stations are at most gates but crowded. Best spots: T4 near Shake Shack (long counter with outlets), T5 near gate 12 (power outlets between seats). Pack a multi-port charger — outlets are scarce at peak hours.',text_ru:'Зарядные станции есть у большинства выходов, но всегда заняты. Лучшие места: T4 у Shake Shack (длинная стойка с розетками), T5 у выхода 12 (розетки между креслами). Берите многопортовое зарядное — розеток не хватает в часы пик.'},
+{category:'food',severity:'pro',text_en:'Cheapest decent meal: T4 food court has "Nathans Famous" — hot dog + fries ~$10. T5 has "Gotham Market" — slices from $5. Avoid sit-down restaurants near gates (minimum $25/plate).',text_ru:'Лучший бюджетный вариант: фуд-корт T4 — «Nathans Famous»: хот-дог с картошкой ~$10. T5 — «Gotham Market»: пицца от $5. Избегайте ресторанов у выходов — минимум $25 за блюдо.'},
+{category:'sleep',severity:'info',text_en:'No free sleeping pods. Best spots: T4 near gate B24 (quiet, padded benches, dim lighting), T5 upper level (less foot traffic). Bring eye mask and earplugs.',text_ru:'Бесплатных капсул для сна нет. Лучшие места: T4 у выхода B24 (тихо, мягкие скамьи), T5 верхний уровень. Возьмите маску и беруши.'},
+{category:'luggage',severity:'info',text_en:'Luggage storage: "SMARTEC" in T1 arrivals — $12 per bag for 24h, $8 for 6h. T4 has "Baggage Storage" near baggage claim D — $10/bag/24h.',text_ru:'Хранение багажа: «SMARTEC» в T1 — $12 за сумку на 24ч. T4 — хранение у выдачи багажа D — $10/сумка/24ч.'},
+{category:'scams',severity:'warning',text_en:'Classic JFK scam: someone in uniform claims your taxi payment machine is broken and directs you to a fake cab. REAL taxis accept all cards.',text_ru:'Классическая схема в JFK: человек в форме утверждает, что терминал оплаты такси сломан, и направляет к подставному такси. Настоящие такси принимают все карты.'},
+{category:'immigration',severity:'warning',text_en:'Immigration at JFK can take 45-90 minutes. Use Mobile Passport Control app (free) or Global Entry. Arriving on morning international flights (5-9am) has shortest waits.',text_ru:'Паспортный контроль JFK — от 45 до 90 минут. Используйте приложение Mobile Passport Control (бесплатно) или Global Entry. Утренние рейсы (5–9 утра) — самые короткие очереди.'},
+{category:'navigation',severity:'info',text_en:'JFK has 6 terminals connected by AirTrain (free within airport). T4 is the main hub. Walking between T4 and T5 takes ~15 min via skywalk.',text_ru:'JFK — 6 терминалов, соединённых AirTrain (бесплатно). T4 — главный хаб. Пешком между T4 и T5 ~15 минут.'},
+{category:'sim',severity:'info',text_en:'SIM cards: "T-Mobile" kiosk in arrivals T4 (prepaid from $30 for 10GB). "AT&T" in T1. Walk 5min to Lefferts Blvd for half the price. Airalo e-sim works well.',text_ru:'SIM-карты: киоск T-Mobile в T4 (prepaid от $30 за 10 ГБ). AT&T в T1. Пройдите 5 минут до Lefferts Blvd — цена вдвое ниже. e-Sim Airalo работает отлично.'},
+{category:'sleep',severity:'pro',text_en:'Best budget sleep: TWA Hotel at JFK (T5) — rooms from $249. Free: the chapel in T4 (near baggage claim, room 1A) is open to all faiths, quiet, dimly lit.',text_ru:'Лучший вариант: TWA Hotel у JFK — от $249. Бесплатно: часовня в T4 (у выдачи багажа, комната 1A), тихо, приглушённый свет.'},
+]},
+{code:'LAX',city:'Los Angeles',country:'USA',countryRu:'США',flag:'🇺🇸',terminals:9,difficulty:5,continent:'americas',tips:[
+{category:'transport',severity:'warning',text_en:'LAX taxi to Santa Monica ~$45, to Hollywood ~$60. Uber/Lyft pickup now at "LAX-it" lot — take free shuttle from arrivals, adds 15-20 min.',text_ru:'Такси LAX до Санта-Моники ~$45, до Голливуда ~$60. Uber/Lyft забирают на стоянке «LAX-it» — бесплатный шаттл (+15–20 мин).'},
+{category:'transport',severity:'pro',text_en:'FlyAway Bus: direct from LAX to Union Station ($9.75), Hollywood ($9.75), Van Nuys ($9.75). Runs every 30 min, 24/7.',text_ru:'FlyAway Bus: прямой рейс до Union Station ($9.75), Голливуда ($9.75), Van Nuys ($9.75). Каждые 30 минут, круглосуточно.'},
+{category:'money',severity:'warning',text_en:'Currency exchange in LAX is a scam — rates 12-18% below market. Use BoA or Chase ATMs in baggage claim.',text_ru:'Обменники в LAX — наценка 12–18%. Используйте банкоматы BoA или Chase в зоне выдачи багажа.'},
+{category:'wifi',severity:'warning',text_en:'LAX free WiFi is notoriously slow (3-5 Mbps). Works best in terminals 4,5,6. Terminal 2 and 3 have dead zones.',text_ru:'Бесплатный WiFi в LAX медленный (3–5 Мбит/с). Лучше в T4, T5, T6. В T2 и T3 — мёртвые зоны.'},
+{category:'charging',severity:'info',text_en:'T4 has power outlets at every seat row (recently renovated). T5 near gate 55 has USB ports in seats. T7 is the worst.',text_ru:'T4 — розетки у каждого ряда (после ремонта). T5 у выхода 55 — USB в креслах. T7 — хуже всего.'},
+{category:'food',severity:'pro',text_en:'Cheapest real food: In-N-Out on Sepulveda Blvd (5 min walk from T1 arrivals) — double-double combo ~$10.',text_ru:'In-N-Out на Sepulveda Blvd (5 мин пешком от T1) — дабл-дабл комбо ~$10.'},
+{category:'sleep',severity:'info',text_en:'LAX has no sleep pods. Best free spots: T4 near gate 46 (quiet, padded benches). Many travelers sleep at TBIT gate 125.',text_ru:'В LAX нет капсул. Лучшие места: T4 у выхода 46 (мягкие скамьи). Многие спят у выхода 125 в TBIT.'},
+{category:'luggage',severity:'info',text_en:'SmarteCarte at T1 and T4 arrivals — $10/bag/24h. Luggage Club near TBIT — $12/bag/24h.',text_ru:'SmarteCarte в T1 и T4 — $10/сумка/24ч. Luggage Club у TBIT — $12/сумка/24ч.'},
+{category:'scams',severity:'warning',text_en:'Common LAX scam: people posing as "airport ambassadors" offering help with bags then demanding $20. Real staff wear official badges.',text_ru:'Люди в форме «послов аэропорта» предлагают помощь с багажом, затем требуют $20. Настоящие сотрудники в бейджах.'},
+{category:'immigration',severity:'warning',text_en:'LAX immigration wait times often exceed 90 minutes during peak (11am-8pm). Use Mobile Passport Control (free) or Global Entry.',text_ru:'Очереди в LAX часто превышают 90 минут в пик (11:00–20:00). Используйте Mobile Passport Control или Global Entry.'},
+{category:'navigation',severity:'warning',text_en:'LAX terminals NOT connected airside. You MUST exit and take shuttle bus between terminals — 30-45 min including re-security.',text_ru:'Терминалы LAX НЕ соединены внутри. Выходите и езжайте на шаттле — 30–45 минут с повторным досмотром.'},
+{category:'sim',severity:'info',text_en:'T-Mobile and AT&T kiosks at TBIT arrivals. Prepaid from $30. FlyAway to Union Station ($9.75) then buy downtown — plans from $15/mo.',text_ru:'Киоски T-Mobile и AT&T у TBIT. Prepaid от $30. FlyAway до Union Station ($9.75) — тарифы от $15/мес.'},
+]},
+{code:'ORD',city:'Chicago',country:'USA',countryRu:'США',flag:'🇺🇸',terminals:4,difficulty:4,continent:'americas',tips:[
+{category:'transport',severity:'info',text_en:'Blue Line "L" train from ORD to downtown Chicago: $5, 45 min, runs 24/7. Taxi to downtown ~$40-50 flat rate.',text_ru:'Поезд Blue Line L от ORD до центра Чикаго: $5, 45 минут, круглосуточно. Такси до центра — фиксированные $40–50.'},
+{category:'transport',severity:'warning',text_en:'Ignore taxi touts offering "express service" for higher fare. Official taxis use meters or flat rate posted at the stand.',text_ru:'Игнорируйте зазывал с «экспресс-сервисом». Официальные такси — по счётчику или фиксированному тарифу.'},
+{category:'money',severity:'info',text_en:'ATMs in baggage claim by Chase and Bank of America ($3-5 fee). Currency exchange at T5 only — rates poor (-10%).',text_ru:'Банкоматы Chase и Bank of America (комиссия $3–5). Обмен только в T5 — курс на 10% хуже.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "ORD Free WiFi" — no login, no ads, speed ~15 Mbps throughout all terminals.',text_ru:'Бесплатный WiFi «ORD Free WiFi» — без регистрации, скорость ~15 Мбит/с.'},
+{category:'charging',severity:'info',text_en:'T1 near gate C10 has large charging counter. T2 near gate E2 has floor outlets. T3 near gate L1 has USB at bar.',text_ru:'T1 у выхода C10 — большая стойка. T2 у E2 — розетки в полу. T3 у L1 — USB в стойке бара.'},
+{category:'food',severity:'pro',text_en:'"Rublico\'s" in T1 food court — tacos from $6. "Garrett Popcorn" in T2 — famous Chicago mix, $5 small bag.',text_ru:'«Rublico\'s» в фуд-корте T1 — тако от $6. Garrett Popcorn в T2 — чикагский микс, $5 за маленький пакет.'},
+{category:'sleep',severity:'info',text_en:'ORD open 24h. Best: T1 near gate C18 (benches without armrests), T3 near gate K19. No sleep pods. Bring layers — cold at night.',text_ru:'ORD открыт 24/7. T1 у C18 (скамьи без подлокотников), T3 у K19. Капсул нет. Берите тёплую одежду.'},
+{category:'luggage',severity:'info',text_en:'Luggage Club at T3 baggage claim — $12/bag/24h. T5 has automated lockers near arrivals — $8-12.',text_ru:'Luggage Club в T3 — $12/сумка/24ч. T5 — автоматические шкафчики — $8–12.'},
+{category:'scams',severity:'warning',text_en:'ORD: people posing as "train info" staff directing travelers to expensive taxis instead of Blue Line. Taxi drivers claiming holiday markup.',text_ru:'ORD: лже-сотрудники направляют к дорогим такси. Таксисты утверждают, что фиксированный тариф не действует из-за праздника.'},
+{category:'immigration',severity:'info',text_en:'ORD immigration: 30-60 min. Use Mobile Passport Control. Morning flights (5-9am) have shortest queues.',text_ru:'Паспортный контроль ORD: 30–60 минут. Утренние рейсы (5–9 утра) — самые короткие очереди.'},
+{category:'navigation',severity:'info',text_en:'ORD: T1, T2, T3 connected airside. T5 separate — take ATS free train from T3 (15 min including security).',text_ru:'ORD: T1, T2, T3 соединены внутри. T5 отдельно — поезд ATS от T3 (15 мин с досмотром).'},
+]},
+{code:'MIA',city:'Miami',country:'USA',countryRu:'США',flag:'🇺🇸',terminals:3,difficulty:3,continent:'americas',tips:[
+{category:'transport',severity:'info',text_en:'MIA Mover free train to Miami Central Station. Metrorail to downtown $2.25. Taxi to South Beach ~$40 flat rate.',text_ru:'Бесплатный MIA Mover до Miami Central. Metrorail до центра $2.25. Такси до Саут-Бич — $40.'},
+{category:'transport',severity:'warning',text_en:'Uber/Lyft pickup at "Rideshare Lot" (3rd floor of parking garage). Follow purple signs. Don\'t wait at arrivals.',text_ru:'Uber/Lyft на «Rideshare Lot» (3-й этаж парковки, фиолетовые указатели). Не ждите у входа.'},
+{category:'money',severity:'info',text_en:'Most places accept USD/CAD/EUR. ATMs everywhere. Best: Chase in Central Terminal (no fee for Chase customers).',text_ru:'Везде принимают USD/CAD/EUR. Банкоматы во всех терминалах.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "MIA Free WiFi" — speed ~12 Mbps, no login. Works in all terminals.',text_ru:'Бесплатный WiFi «MIA Free WiFi» — скорость ~12 Мбит/с, без регистрации.'},
+{category:'charging',severity:'info',text_en:'Central Terminal near J gate has charging area with stools. North Terminal has USB at food court. South Terminal near D26.',text_ru:'Central Terminal у выхода J — зона с табуретами. North Terminal — USB в фуд-корте.'},
+{category:'food',severity:'pro',text_en:'"La Carreta" in Central Terminal — Cuban coffee $3, empanadas $4-5. "Pollo Tropical" in North Terminal — chicken bowl ~$8.',text_ru:'«La Carreta» в Central Terminal — кубинский кофе $3, эмпанадас $4–5. Pollo Tropical — боул с курицей ~$8.'},
+{category:'sleep',severity:'info',text_en:'Sleep Pods in Central Terminal near gate J (~$35/hr). Free: North Terminal near D25 (dark after 10pm).',text_ru:'Капсулы в Central Terminal у J (~$35/ч). Бесплатно: North Terminal у D25.'},
+{category:'luggage',severity:'info',text_en:'Secure Wrap in Central Terminal baggage claim — $10/bag/24h. Bags Club near gate D in North Terminal — $8/bag.',text_ru:'Secure Wrap в Central Terminal — $10/сумка/24ч. Bags Club у выхода D в North Terminal — $8/сумка.'},
+{category:'scams',severity:'warning',text_en:'"Free VIP lounge" touts pushing timeshares. Taxi to South Beach adding $20 "toll fee" — no toll route exists.',text_ru:'«Бесплатный VIP-лаунж» — таймшеры. Такси добавляет $20 за «платную дорогу» — её нет.'},
+{category:'immigration',severity:'info',text_en:'MIA immigration: 45-90 min for non-US. Use MPC app. Peak 3-8pm. Morning (6-10am) is quiet.',text_ru:'Паспортный контроль MIA: 45–90 минут. Пик 15:00–20:00. Утро (6–10) тихо.'},
+{category:'navigation',severity:'info',text_en:'3 terminals connected airside. Skytrain free, runs every 3 min. South to North walk ~25 min.',text_ru:'3 терминала соединены внутри. Бесплатный Skytrain каждые 3 минуты. От South до North ~25 минут.'},
+]},
+{code:'YYZ',city:'Toronto',country:'Canada',countryRu:'Канада',flag:'🇨🇦',terminals:2,difficulty:3,continent:'americas',tips:[
+{category:'transport',severity:'info',text_en:'UP Express to Union Station: $12.35 CAD, 25 min, every 15 min. Taxi ~$60 CAD fixed rate.',text_ru:'UP Express до Union Station: $12.35 CAD, 25 минут. Такси ~$60 CAD.'},
+{category:'money',severity:'info',text_en:'Currency exchange in arrivals: 8-10% markup. Use RBC or TD ATMs in baggage claim (no fee for customers).',text_ru:'Обменники — наценка 8–10%. Банкоматы RBC или TD в зоне выдачи багажа (без комиссии).'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "Toronto Pearson WiFi" — speed ~20 Mbps, no login. Auto-reconnects for 24h.',text_ru:'Бесплатный WiFi «Toronto Pearson WiFi» — скорость ~20 Мбит/с, без регистрации.'},
+{category:'charging',severity:'pro',text_en:'T1 every gate has USB-A and USB-C at seats. T3 has charging counters near gates B and C. Quiet areas near gate 48 have most outlets.',text_ru:'T1 — USB-A и USB-C у каждого выхода. T3 — стойки у B и C. Больше всего розеток у выхода 48.'},
+{category:'food',severity:'pro',text_en:'Tim Hortons in both terminals — coffee $2, donut $1.5, sandwich $6-7. Pizza Pizza in T1 — slices $5.',text_ru:'Tim Hortons — кофе $2, пончик $1.50, сэндвич $6–7. Pizza Pizza в T1 — пицца $5.'},
+{category:'sleep',severity:'info',text_en:'T1 near gate 48 (quiet with lounge chairs). T3 near gate B22 (padded benches). Sleep Pods in T1 near gate 40 — $35/hr.',text_ru:'T1 у выхода 48 (кресла-реклайнеры). T3 у B22 (мягкие скамьи). Капсулы T1 у 40 — $35/ч.'},
+{category:'luggage',severity:'info',text_en:'Left Luggage in T1 arrivals — $10 CAD/bag/24h. T3 SmarteCarte lockers — $8-12 CAD.',text_ru:'Left Luggage в T1 — $10 CAD/сумка/24ч. T3 — шкафчики SmarteCarte — $8–12 CAD.'},
+{category:'scams',severity:'warning',text_en:'Taxi drivers claiming UP Express is "closed for maintenance" — it rarely closes. People offering "fast track" for $50 — ignore.',text_ru:'Таксисты говорят, что UP Express «закрыт» — редко бывает. «Ускоренный контроль» за $50 — игнорируйте.'},
+{category:'immigration',severity:'info',text_en:'YYZ: 30-60 min. NEXUS fast track. Use CanBorder eDeclaration app. US flights pre-clear in Toronto.',text_ru:'YYZ: 30–60 минут. NEXUS — ускоренно. Приложение CanBorder eDeclaration. Рейсы в США — предочистка.'},
+{category:'navigation',severity:'info',text_en:'T1 and T3 connected by Link Train (free, 2 min). Walkway 15 min. Budget airlines use T3.',text_ru:'T1 и T3 соединены поездом Link Train (2 мин). Пешком 15 минут. Бюджетные — T3.'},
+]},
+{code:'MEX',city:'Mexico City',country:'Mexico',countryRu:'Мексика',flag:'🇲🇽',terminals:2,difficulty:4,continent:'americas',tips:[
+{category:'transport',severity:'warning',text_en:'Avoid "taxi libre" — 3-4x price. Use Sitio taxi booths inside arrivals. Pay at booth (~200-300 MXN to Reforma).',text_ru:'Избегайте taxi libre — в 3–4 раза дороже. Киоски Sitio внутри прилёта (~200–300 песо).'},
+{category:'transport',severity:'pro',text_en:'Metro from MEX: Terminal Aérea (Line 5) — $5 MXN, 25 min to Centro. DON\'T take after 10pm or with large luggage.',text_ru:'Метро от MEX: Terminal Aérea (Линия 5) — $5 песо, 25 минут. НЕ пользуйтесь после 22:00.'},
+{category:'money',severity:'warning',text_en:'Currency exchange 15% below market. Use Banamex ATMs in baggage claim (fee ~$30 MXN). Bring USD as backup.',text_ru:'Обменники — наценка 15%. Банкоматы Banamex в зоне выдачи багажа (~30 песо). Имейте доллары.'},
+{category:'wifi',severity:'warning',text_en:'WiFi "AICM" requires SMS with Mexican number. Buy Telcel SIM ($100 MXN with data) at arrivals booth.',text_ru:'WiFi «AICM» требует SMS с мексиканского номера. Купите SIM Telcel ($100 песо).'},
+{category:'charging',severity:'info',text_en:'T1 near gates A and B limited. T2 better — USB at gates F and G. Best: Cielito Querido Café in T2.',text_ru:'T1 — ограничено. T2 лучше — USB у выходов F и G. Лучше всего — Cielito Querido Café в T2.'},
+{category:'food',severity:'pro',text_en:'Cielito Querido in T2 — chilaquiles $80 MXN ($4). Tacos de Canasta cart outside T1 — $15 MXN each.',text_ru:'Cielito Querido в T2 — чилакилес $80 песо ($4). Tacos de Canasta у T1 — $15 песо/шт.'},
+{category:'sleep',severity:'info',text_en:'MEX open 24h. T1 near gate A9 (quiet). T2 near gate L1 (dark corner). NH Hotel connects to T1 — $80+/night.',text_ru:'MEX открыт 24/7. T1 у A9 (тихо). T2 у L1. Отель NH у T1 — $80+/ночь.'},
+{category:'luggage',severity:'info',text_en:'Guardaequipaje in T1 arrivals — $80 MXN/bag/24h ($4). T2 lockers near food court — $60-100 MXN.',text_ru:'Guardaequipaje в T1 — $80 песо/сумка/24ч ($4). T2 — шкафчики у фуд-корта — $60–100 песо.'},
+{category:'scams',severity:'warning',text_en:'"Taxi helpers" grab your bag and demand $50 MXN. Drivers claiming Sitio ticket is "per person". ATM skimming reported.',text_ru:'«Помощники такси» хватают багаж и требуют $50 песо. Скиммеры на банкоматах.'},
+{category:'immigration',severity:'info',text_en:'MEX: 15-30 min (fast). Fill out FMM card — keep it for departure. Digital nomad visa info at counter.',text_ru:'MEX: 15–30 минут. Заполните FMM — сохраните для вылета.'},
+{category:'navigation',severity:'info',text_en:'T1 (international) and T2 (Volaris/Aeromexico) connected by free shuttle bus (5 min, every 10 min). Walking not possible.',text_ru:'T1 и T2 — бесплатный автобус (5 мин). Пешком нельзя.'},
+]},
+{code:'GRU',city:'São Paulo',country:'Brazil',countryRu:'Бразилия',flag:'🇧🇷',terminals:2,difficulty:4,continent:'americas',tips:[
+{category:'transport',severity:'warning',text_en:'GRU taxi to Paulista Ave: ~R$120-150 ($25-30). Uber cheaper (~R$80-100) but pickup in parking garage.',text_ru:'Такси GRU до Паулиста: ~R$120–150 ($25–30). Uber дешевле (~R$80–100) на парковке.'},
+{category:'transport',severity:'info',text_en:'CPTM train to Luz station: R$5 ($1), 40 min. Cheapest but crowded. Daylight only.',text_ru:'Поезд CPTM до Luz: R$5 ($1), 40 минут. Только днём.'},
+{category:'money',severity:'warning',text_en:'Currency exchange 12% below market. Use Banco do Brasil ATMs in baggage claim. Bring USD for city exchange.',text_ru:'Обменники — наценка 12%. Банкоматы Banco do Brasil. Меняйте доллары в городе.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "GRU Free WiFi" — speed ~10 Mbps, requires CPF (Brazilian tax ID). Get voucher at info desk if no CPF.',text_ru:'WiFi «GRU Free WiFi» — ~10 Мбит/с, нужен CPF. Ваучер на стойке информации.'},
+{category:'charging',severity:'info',text_en:'T2 near gate 12 and 14 has USB in seats. T1 near gate 8 has outlets. Brazil uses Type N plugs.',text_ru:'T2 у выходов 12 и 14 — USB. T1 у 8 — розетки. В Бразилии тип N.'},
+{category:'food',severity:'pro',text_en:'Habib\'s in T2 — esfiha R$5 each, combo R$20. Bakery in T1 arrivals — coffee + pão de queijo R$12.',text_ru:'Habib\'s в T2 — эсфиха R$5/шт. Пекарня в T1 — кофе + пао де кейжо R$12.'},
+{category:'sleep',severity:'info',text_en:'GRU open 24h. T2 near gate 14 (quiet). T1 near gate 6 (dark). Sleep Pods in T2 near food court — R$50/hr.',text_ru:'GRU открыт 24/7. T2 у 14 (тихо), T1 у 6 (темно). Капсулы в T2 — R$50/ч.'},
+{category:'luggage',severity:'info',text_en:'Guarda-volumes in T2 baggage claim — R$30/bag/24h ($6). T1 lockers near bus terminal — R$25-40.',text_ru:'Guarda-volumes в T2 — R$30/сумка/24ч ($6). T1 — шкафчики — R$25–40.'},
+{category:'scams',severity:'warning',text_en:'Fake taxi drivers at double price — use official stand. People offering CPF help for R$20. Pickpockets at CPTM station.',text_ru:'Подставные таксисты — пользуйтесь официальной стойкой. Карманники у CPTM.'},
+{category:'immigration',severity:'info',text_en:'GRU: 20-45 min. Brazil requires visa for US/Canada/Australia (from 2025). E-visa available.',text_ru:'GRU: 20–45 минут. Бразилия требует визу для США/Канады/Австралии (с 2025).'},
+{category:'navigation',severity:'info',text_en:'T1 and T2 connected by walkway (10 min) and free shuttle (3 min). Allow 2-3 hours between terminals.',text_ru:'T1 и T2 — переход (10 мин) и автобус (3 мин). На пересадку 2–3 часа.'},
+]},
+{code:'BOG',city:'Bogotá',country:'Colombia',countryRu:'Колумбия',flag:'🇨🇴',terminals:2,difficulty:3,continent:'americas',tips:[
+{category:'transport',severity:'info',text_en:'Airport taxi to Zona Rosa: ~$50,000 COP ($12) — pay at Taxi Autorizado booth inside arrivals. Uber ~$35,000 COP but officially illegal.',text_ru:'Такси до Зоны Роса: ~$50,000 песо ($12) — платите в киоске. Uber ~$35,000 песо, но нелегален.'},
+{category:'transport',severity:'warning',text_en:'Do NOT accept rides from drivers inside baggage claim. Only use official taxi booth — pay there, get ticket.',text_ru:'НЕ соглашайтесь на такси внутри зоны выдачи — только официальный киоск.'},
+{category:'money',severity:'warning',text_en:'Currency exchange 10% below market. Use Bancolombia ATMs in baggage claim (fee ~$12,000 COP).',text_ru:'Обменники — наценка 10%. Банкоматы Bancolombia (~12,000 песо).'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "El Dorado WiFi" — speed ~8 Mbps, requires passport number. Valid 2 hours.',text_ru:'WiFi «El Dorado WiFi» — ~8 Мбит/с, нужен номер паспорта. 2 часа.'},
+{category:'charging',severity:'info',text_en:'T1 near gates 14-18 have USB. T2 (domestic) charging counter near gate 5. Best: T1 food court upper level.',text_ru:'T1 у 14–18 — USB. T2 у 5 — стойка. Лучше: верхний уровень фуд-корта T1.'},
+{category:'food',severity:'pro',text_en:'Crepes & Waffles in T1 — crepe $12,000 COP ($3). Juan Valdez everywhere — coffee $5,000 COP.',text_ru:'Crepes & Waffles в T1 — креп $12,000 песо ($3). Juan Valdez — кофе $5,000 песо.'},
+{category:'sleep',severity:'info',text_en:'BOG open 24h. T1 near gate 14 (quiet corner). T1 near gate 22 (dark after midnight). No sleep pods.',text_ru:'BOG открыт 24/7. T1 у 14 (тихий угол), T1 у 22 (темно). Капсул нет.'},
+{category:'luggage',severity:'info',text_en:'Guardaequipajes in T1 arrivals — $20,000 COP/bag/24h ($5). T2 lockers near gate 1 — $15,000-25,000 COP.',text_ru:'Guardaequipajes в T1 — $20,000 песо/сумка/24ч ($5). T2 — шкафчики у 1.'},
+{category:'scams',severity:'warning',text_en:'"Spilled drink" scam — accomplice picks pocket while helping clean. Fake "helpers" at train station demanding payment.',text_ru:'«Пролитый напиток» — карманники. Лже-сотрудники на станции поезда.'},
+{category:'immigration',severity:'info',text_en:'BOG: 15-30 min. Colombia requires entry/exit stamp. Some nationalities need visa.',text_ru:'BOG: 15–30 минут. Требуется штамп. Некоторым нужна виза.'},
+{category:'navigation',severity:'info',text_en:'T1 (international + Avianca) and T2 (low-cost). Free shuttle bus (5 min) and walkway (10 min).',text_ru:'T1 (международные) и T2 (бюджетные). Бесплатный автобус (5 мин).'},
+]},
+{code:'LIM',city:'Lima',country:'Peru',countryRu:'Перу',flag:'🇵🇪',terminals:2,difficulty:3,continent:'americas',tips:[
+{category:'transport',severity:'info',text_en:'Airport taxi to Miraflores: ~$50-60 PEN ($13-16) — pay at Taxi Green or CMV booth. Uber ~$35-45 PEN from parking lot.',text_ru:'Такси до Мирафлорес: ~$50–60 солей ($13–16) — киоск Taxi Green или CMV.'},
+{category:'transport',severity:'warning',text_en:'Don\'t take "colectivo" (shared vans) — unsafe. Official Airport Express bus to Miraflores — $15 PEN ($4), every 30 min.',text_ru:'НЕ берите colectivo. Airport Express до Мирафлорес — $15 солей ($4).'},
+{category:'money',severity:'warning',text_en:'Currency exchange 10% below market. Use BCP ATMs in baggage claim (fee ~$7 PEN). Interbank in food court has no fee.',text_ru:'Обменники — наценка 10%. Банкоматы BCP (~7 солей). Interbank в фуд-корте без комиссии.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "Airport WiFi LIM" — speed ~5 Mbps, requires email. Valid 1 hour. Buy Bitel SIM ($20 PEN, 5GB).',text_ru:'WiFi «Airport WiFi LIM» — ~5 Мбит/с. Купите SIM Bitel ($20 солей, 5 ГБ).'},
+{category:'charging',severity:'info',text_en:'T1 near gates 12-16 has USB (often broken). T2 newer — USB at most seats. Best: T2 food court. Bring power bank.',text_ru:'T1 у 12–16 — USB (часто сломаны). T2 новее. Берите пауэрбанк.'},
+{category:'food',severity:'pro',text_en:'Tanta bakery in T2 — sandwich $18 PEN ($5). Café de la Mar in T2 — ceviche $25 PEN ($7).',text_ru:'Tanta в T2 — сэндвич $18 солей ($5). Café de la Mar — севиче $25 солей ($7).'},
+{category:'sleep',severity:'info',text_en:'LIM open 24h. T2 near gate 10 (newer, quieter). T1 near gate 14 (sofa chairs). Sleep Inn inside — $60+ for 6h.',text_ru:'LIM открыт 24/7. T2 у 10 (тише). T1 у 14 (диваны). Sleep Inn — $60 за 6 часов.'},
+{category:'luggage',severity:'info',text_en:'Equipajes in T1 arrivals — $25 PEN/bag/24h ($7). T2 lockers near bus exit — $20-35 PEN.',text_ru:'Equipajes в T1 — $25 солей/сумка/24ч ($7). T2 — шкафчики — $20–35 солей.'},
+{category:'scams',severity:'warning',text_en:'"Official" porters demand $30 PEN for 50m (real ones wear red vests). Taxi drivers say bus isn\'t running.',text_ru:'«Официальные» носильщики просят $30 солей (настоящие — в красных жилетах).'},
+{category:'immigration',severity:'info',text_en:'LIM: 10-20 min (fast). Most nationalities get 90 days. India/China/Africa need visas.',text_ru:'LIM: 10–20 минут. Большинству — 90 дней. Индии/Китаю/Африке нужна виза.'},
+{category:'navigation',severity:'info',text_en:'T1 (international) and T2 (low-cost). Connected by walkway (10 min). Allow 1-2 hours between terminals.',text_ru:'T1 (международные) и T2 (бюджетные). Переход (10 мин).'},
+]},
+{code:'EZE',city:'Buenos Aires',country:'Argentina',countryRu:'Аргентина',flag:'🇦🇷',terminals:3,difficulty:3,continent:'americas',tips:[
+{category:'transport',severity:'info',text_en:'Tienda León bus to Retiro: $4,200 ARS (~$5 USD), 24h, every 30 min, 40 min. Taxi to Palermo: ~$15,000 ARS ($18).',text_ru:'Автобус Tienda León до Ретиро: $4,200 песо (~$5 USD). Такси до Палермо: ~$15,000 песо ($18).'},
+{category:'transport',severity:'warning',text_en:'Argentina has dual exchange rate (official vs "blue dollar"). Pay in pesos, not USD at official rate.',text_ru:'В Аргентине двойной курс. Платите в песо, не в USD по официальному курсу.'},
+{category:'money',severity:'warning',text_en:'ATMs charge huge fees ($10-15 USD). Banco Nación has lowest fee. Bring USD cash — exchange at "blue dollar" rate in city.',text_ru:'Банкоматы — комиссия $10–15. Меняйте доллары в городе по курсу «голубого доллара».'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "Aeropuertos Argentina 2000" — speed ~10 Mbps, requires ID (try 12345678). Works in all terminals.',text_ru:'WiFi «Aeropuertos Argentina 2000» — ~10 Мбит/с, нужен ID (например 12345678).'},
+{category:'charging',severity:'info',text_en:'T1 near gates 1-5 (USB). T2 best at gates 8-14 (USB+outlets). Argentina uses Type C and I plugs.',text_ru:'T1 у 1–5 (USB). T2 у 8–14 (USB+розетки). Аргентина — типы C и I.'},
+{category:'food',severity:'pro',text_en:'Café Martínez in T2 — coffee + medialunas $2,500 ARS ($3). Kentucky in T3 — chicken combo $4,000 ARS.',text_ru:'Café Martínez в T2 — кофе + медиалунас $2,500 песо ($3). Kentucky в T3 — $4,000 песо.'},
+{category:'sleep',severity:'info',text_en:'EZE open 24h. T2 near gate 10 (sofas). T1 near gate 4 (padded benches). T3 reclining seats near gate 16.',text_ru:'EZE открыт 24/7. T2 у 10 (диваны), T1 у 4 (скамьи), T3 — кресла-реклайнеры.'},
+{category:'luggage',severity:'info',text_en:'Consigna in T2 arrivals — $3,000 ARS/bag/24h ($4). T3 lockers near baggage claim — $2,000-4,000 ARS.',text_ru:'Consigna в T2 — $3,000 песо/сумка/24ч ($4). T3 — шкафчики — $2,000–4,000 песо.'},
+{category:'scams',severity:'warning',text_en:'"Remise" touts offering 3x taxi price. People offering to "skip" taxi line for $20 — line moves fast.',text_ru:'Зазывалы remise (частные авто) в 3 раза дороже.'},
+{category:'immigration',severity:'info',text_en:'EZE: 15-30 min. No visa for US/UK/EU/Canada/Australia (90 days). Have accommodation proof ready.',text_ru:'EZE: 15–30 минут. Без визы для США/Великобритании/ЕС/Канады/Австралии.'},
+{category:'navigation',severity:'info',text_en:'3 terminals: T1 (domestic), T2 (domestic+international), T3 (international). All connected airside. Walk T1→T3 ~15 min.',text_ru:'Три терминала, соединены внутри. T1→T3 — 15 минут.'},
+]},
+{code:'LHR',city:'London Heathrow',country:'UK',countryRu:'Великобритания',flag:'🇬🇧',terminals:4,difficulty:4,continent:'europe',tips:[
+{category:'transport',severity:'info',text_en:'Heathrow Express to Paddington: £25-30 (advance online from £5.50), 15 min. Elizabeth Line: £13, 30-40 min. Tube (Piccadilly): £5.50, 50 min.',text_ru:'Heathrow Express до Паддингтона: £25–30 (заранее от £5.50). Elizabeth Line: £13. Метро: £5.50.'},
+{category:'transport',severity:'pro',text_en:'Use Oyster card or contactless bank card — tap in/out. Daily cap ~£12 for zones 1-6. Cheaper than paper tickets.',text_ru:'Используйте Oyster или бесконтактную карту. Дневной лимит ~£12.'},
+{category:'money',severity:'info',text_en:'ATMs: Barclays, HSBC, NatWest — no fee. Travelex charges 8-12% markup. Post Office in arrivals has better rates.',text_ru:'Банкоматы Barclays, HSBC, NatWest — без комиссии. Travelex — наценка 8–12%.'},
+{category:'wifi',severity:'pro',text_en:'Free WiFi "Heathrow WiFi" — speed ~25 Mbps, 60 min free. T2 and T5 fastest. Unlimited with Heathrow Rewards.',text_ru:'WiFi «Heathrow WiFi» — ~25 Мбит/с, 60 минут. T2 и T5 — быстрее всего.'},
+{category:'charging',severity:'info',text_en:'T2 near gate 18 has free phone charging lockers. T5 near gate 12 has USB at every seat row. UK uses Type G plugs.',text_ru:'T2 у 18 — бесплатные шкафчики. T5 у 12 — USB. Великобритания — тип G.'},
+{category:'food',severity:'pro',text_en:'Pret a Manger in T2/T5 — sandwich + drink £7.50. WHSmith meal deal: sandwich+snack+drink for £5 (best value).',text_ru:'Pret a Manger — сэндвич + напиток £7.50. WHSmith — сэндвич + снек + напиток за £5.'},
+{category:'sleep',severity:'info',text_en:'T2 near gate 21 (reclining seats). T5 near gate 16 (sofas). Capsule pods in T2 (No1 Lounges) from £35 for 2h.',text_ru:'T2 у 21 (кресла-реклайнеры). T5 у 16 (диваны). Капсулы от £35 за 2 часа.'},
+{category:'luggage',severity:'info',text_en:'Left Baggage at T2 arrivals near Tube — £15/bag/24h. T5 Excess Baggage — £15/24h, £35/72h.',text_ru:'Left Baggage в T2 — £15/сумка/24ч. T5 — £15/24ч, £35/72ч.'},
+{category:'scams',severity:'warning',text_en:'"Official" taxi drivers say Heathrow Express broken — it\'s never fully broken. Currency exchangers shortchange you.',text_ru:'Таксисты говорят, что экспресс сломан — это не так. Обменники обсчитывают.'},
+{category:'immigration',severity:'info',text_en:'LHR: 15-45 min. eGates for US/UK/EU/AU/CA/NZ/JP/KR/SG (5-10 sec). Have seat number ready.',text_ru:'LHR: 15–45 минут. eGates для многих стран (5–10 сек). Номер места нужен.'},
+{category:'navigation',severity:'info',text_en:'T2+T3 connected by walkway (10 min). T5 separate — free Heathrow Express (5 min). T4 also separate. Allow 1h for T5 transfers.',text_ru:'T2+T3 — переход (10 мин). T5 — Heathrow Express (5 мин). На пересадку — час.'},
+]},
+{code:'CDG',city:'Paris Charles de Gaulle',country:'France',countryRu:'Франция',flag:'🇫🇷',terminals:3,difficulty:5,continent:'europe',tips:[
+{category:'transport',severity:'warning',text_en:'RER B to Paris: €11.45, 35 min. Beware pickpockets near doors. Taxi to central Paris: €60-70 flat rate.',text_ru:'RER B до Парижа: €11.45, 35 минут. Осторожно — карманники. Такси: €60–70.'},
+{category:'transport',severity:'info',text_en:'Roissybus to Opéra: €16.20, 60 min. Le Bus Direct: €17-20. For groups 3+, taxi cheaper than individual RER.',text_ru:'Roissybus до Оперы: €16.20. Для группы от 3 такси выгоднее RER.'},
+{category:'money',severity:'warning',text_en:'Currency exchange 12-15% markup. Use BNP Paribas or Société Générale ATMs. Avoid Travelex completely.',text_ru:'Обменники — наценка 12–15%. Банкоматы BNP Paribas или Société Générale.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "PARIS AEROPORT" — speed ~10 Mbps, requires SMS or email "tourist mode". Lounge WiFi faster (Priority Pass).',text_ru:'WiFi «PARIS AEROPORT» — ~10 Мбит/с, нужен SMS или email.'},
+{category:'charging',severity:'info',text_en:'T2E near gate K (USB), T2F near gate F (outlets), T2G (every seat). T1 worst. France uses Type E plugs.',text_ru:'T2E у K (USB), T2F у F (розетки). T1 — хуже всего. Франция — тип E.'},
+{category:'food',severity:'pro',text_en:'Paul bakery in T2E/T2F — sandwich €6-8, croissant €2. Exki in T2E — healthy bowl €9. Avoid Caviar Kaspia (€30+).',text_ru:'Paul — сэндвич €6–8, круассан €2. Exki — боул €9. Caviar Kaspia от €30.'},
+{category:'sleep',severity:'info',text_en:'T2E near gate L (reclining seats — best). T2G (new, quiet). YOTELAIR in T2E from €45 for 4h.',text_ru:'T2E у L (кресла-реклайнеры). T2G (новый, тихо). YOTEL от €45 за 4 часа.'},
+{category:'luggage',severity:'info',text_en:'Baggage du Monde in T2E arrivals — €12/bag/24h. T2F lockers near train station — €8-15.',text_ru:'Baggage du Monde в T2E — €12/сумка/24ч. T2F — шкафчики — €8–15.'},
+{category:'scams',severity:'warning',text_en:'"Charity scam" with clipboards. RER B pickpocket gangs. Taxi drivers claiming flat rate doesn\'t apply.',text_ru:'«Благотворители» с планшетами. Карманники на RER B.'},
+{category:'immigration',severity:'info',text_en:'CDG: 15-45 min for non-EU. Paris Airport app shows real-time wait. T2E fastest.',text_ru:'CDG: 15–45 минут. Приложение Paris Airport показывает время ожидания.'},
+{category:'navigation',severity:'warning',text_en:'CDG infamous for confusing layout. T2 split into 2A-2F (not connected airside). Free CDGVAL between terminals. Allow 1-2h.',text_ru:'CDG — запутанная планировка. T2 разделён на 2A–2F. CDGVAL между терминалами.'},
+]},
+{code:'AMS',city:'Amsterdam Schiphol',country:'Netherlands',countryRu:'Нидерланды',flag:'🇳🇱',terminals:3,difficulty:2,continent:'europe',tips:[
+{category:'transport',severity:'pro',text_en:'Train to Amsterdam Centraal: €5.90, 15 min, every 10 min. Taxi: €45-55. Train station directly below terminal.',text_ru:'Поезд до Amsterdam Centraal: €5.90, 15 минут. Такси: €45–55. Вокзал под терминалом.'},
+{category:'transport',severity:'info',text_en:'Bus 397 to Museumplein — €6, 30 min. FlixBus to Paris/Brussels from €10 early. OV-fiets bike rental €4.50/day.',text_ru:'Автобус 397 до Museumplein — €6. FlixBus от €10. Прокат велосипедов €4.50/день.'},
+{category:'money',severity:'info',text_en:'ATMs: ABN Amro, ING (€2-4 for foreign cards). GWK in train station better than arrivals. Netherlands is card-friendly.',text_ru:'Банкоматы ABN Amro, ING (€2–4). GWK на вокзале. В Голландии карты везде.'},
+{category:'wifi',severity:'pro',text_en:'Free WiFi "Schiphol Free WiFi" — excellent speed (~40 Mbps), no login, unlimited. One of Europe\'s best airport WiFis.',text_ru:'WiFi «Schiphol Free WiFi» — ~40 Мбит/с, без регистрации, безлимит. Лучший в Европе.'},
+{category:'charging',severity:'pro',text_en:'USB at almost every seat. Fast charge stations near gate D and E. Lounge 2 has wireless charging pads.',text_ru:'USB почти в каждом кресле. Быстрая зарядка у D и E. В Lounge 2 — беспроводная.'},
+{category:'food',severity:'pro',text_en:'Albert Heijn supermarket after security — sandwiches €4, fruit €2, water €1.50. Dutch Kitchen — pancakes €8.50.',text_ru:'Albert Heijn после досмотра — сэндвичи €4, фрукты €2. Dutch Kitchen — блины €8.50.'},
+{category:'sleep',severity:'pro',text_en:'YOTEL pods from €50 for 4h (shower included). Free: near gate F (sofa beds), Lounge 1 near gate C. Showers €15.',text_ru:'YOTEL от €50 за 4 часа (с душем). Бесплатно: у F и Lounge 1. Душ €15.'},
+{category:'luggage',severity:'info',text_en:'Schiphol Luggage at train station — €10/bag/24h small, €15 large. Lockers €8-12. Open 24h.',text_ru:'Schiphol Luggage на вокзале — €10/сумка/24ч (мал), €15 (бол). Шкафчики €8–12.'},
+{category:'scams',severity:'info',text_en:'AMS generally safe. Watch for "hold my bag" requests (drug mule setup). Pickpockets at train station area.',text_ru:'AMS безопасен. Остерегайтесь просьб «подержать сумку». Карманники у вокзала.'},
+{category:'immigration',severity:'pro',text_en:'AMS: 10-25 min (fast). eGates for EU/EEA/CH. Privium iris scan for frequent travelers. Rarely has queues.',text_ru:'AMS: 10–25 минут. eGates для ЕС. Privium для частых путешественников.'},
+{category:'navigation',severity:'pro',text_en:'Single terminal building split into 3 lounges, all connected airside. Walk Lounge 1→3 in 15 min. Very easy to navigate.',text_ru:'Одно здание, 3 лаунжа, всё соединено. От Lounge 1 до 3 — 15 минут.'},
+]},
+{code:'FRA',city:'Frankfurt',country:'Germany',countryRu:'Германия',flag:'🇩🇪',terminals:3,difficulty:4,continent:'europe',tips:[
+{category:'transport',severity:'info',text_en:'S-Bahn S8/S9 to Frankfurt Hbf: €5.80, 15 min. ICE to other cities from €30. Taxi: €30-40. Long-distance station at T1.',text_ru:'S-Bahn S8/S9 до Hauptbahnhof: €5.80, 15 минут. ICE от €30. Такси: €30–40.'},
+{category:'transport',severity:'info',text_en:'Deutschlandticket (€49/mo) covers S-Bahn from FRA. Day Ticket Frankfurt (€7.40) covers city+airport.',text_ru:'Deutschlandticket (€49/мес) включает S-Bahn. Day Ticket (€7.40).'},
+{category:'money',severity:'info',text_en:'ATMs: Deutsche Bank, Commerzbank (€3-5 fee). T1 arrivals exchange 8-10% markup. Germany cash-dependent — carry €50-100.',text_ru:'Банкоматы Deutsche Bank, Commerzbank (€3–5). В Германии нужны наличные — имейте €50–100.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "Fraport Free WiFi" — ~15 Mbps, email/phone registration, 30 min sessions. Lounge WiFi faster.',text_ru:'WiFi «Fraport Free WiFi» — ~15 Мбит/с, 30 минут. В лаунжах быстрее.'},
+{category:'charging',severity:'info',text_en:'T1 near gate A (charging stands). T1 near gate Z (USB new). T2 renovated — USB at most seats. Type F plugs.',text_ru:'T1 у A (стойки), T1 у Z (USB новые). T2 — USB. Германия — тип F.'},
+{category:'food',severity:'pro',text_en:'REWE To Go supermarket — sandwiches €4, salads €3.50. Brezel stand — giant pretzel €2.50. Marché in T1 — pasta from €6.',text_ru:'REWE To Go — сэндвичи €4, салаты €3.50. Брецель — €2.50. Marché — паста от €6.'},
+{category:'sleep',severity:'info',text_en:'T1 near gate Z12 (quiet, padded benches). T1 near gate A50 (reclining chairs). T2 near gate G8 (newer). My Cloud pods €25/2h.',text_ru:'T1 у Z12 (скамьи), T1 у A50 (кресла). T2 у G8. My Cloud €25 за 2 часа.'},
+{category:'luggage',severity:'info',text_en:'Kofferkuli in T1 arrivals near B — €8/bag/24h. T2 lockers at train station entrance — €6-12.',text_ru:'Kofferkuli в T1 — €8/сумка/24ч. T2 — шкафчики — €6–12.'},
+{category:'scams',severity:'warning',text_en:'Romani gangs "luggage help" distraction scam — demand €20 after carrying. Fake charity collectors at train station.',text_ru:'«Помощники с багажом» требуют €20. Фальшивые благотворители на вокзале.'},
+{category:'immigration',severity:'info',text_en:'FRA: 20-40 min. eGates for EU/EEA. Dedicated transfer immigration counters for connecting flights (faster).',text_ru:'FRA: 20–40 минут. eGates для ЕС. Отдельные стойки для транзита.'},
+{category:'navigation',severity:'info',text_en:'T1 (A,Z,B,C) and T2 (D,E,F,G). Sky Line people mover (free, 2 min). Tunnel walk 15 min. T1 A→Z takes 30 min.',text_ru:'T1 и T2 — Sky Line (2 мин) или туннель (15 мин). T1 от A до Z — 30 мин.'},
+]},
+{code:'MAD',city:'Madrid Barajas',country:'Spain',countryRu:'Испания',flag:'🇪🇸',terminals:4,difficulty:3,continent:'europe',tips:[
+{category:'transport',severity:'info',text_en:'Metro Line 8 to Nuevos Ministerios — €4.50 (incl airport supplement), 20 min. Renfe train to Atocha — €2.60. Taxi €35.',text_ru:'Метро Линия 8 — €4.50, 20 минут. Поезд Renfe до Atocha — €2.60. Такси €35.'},
+{category:'transport',severity:'warning',text_en:'Madrid airport supplement (€3) included in metro ticket. Ignore people selling "discount" tickets outside. Airport Express €5.',text_ru:'Доплата €3 включена в билет. Экспресс-автобус до Atocha — €5.'},
+{category:'money',severity:'info',text_en:'ATMs: Santander, BBVA (€2-3 fee). Exchange at T1/T4 arrivals — 10% markup. La Caixa at train station better.',text_ru:'Банкоматы Santander, BBVA (€2–3). Обменники — наценка 10%.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "Madrid Airport WiFi" — ~12 Mbps, email/phone, 1 hour sessions. T4S fastest. VIP lounges have dedicated WiFi.',text_ru:'WiFi «Madrid Airport WiFi» — ~12 Мбит/с, часовая сессия. T4S быстрее.'},
+{category:'charging',severity:'info',text_en:'T4 best — USB at every seat row (new). T4S near S1-S10. T1/T2 older — limited outlets in food court. Type F.',text_ru:'T4 — USB в каждом ряду. T4S у S1–S10. T1/T2 — только в фуд-корте.'},
+{category:'food',severity:'pro',text_en:'Pans & Company in T4 — sandwich €5. 100 Montaditos in T4 — small sandwiches €1-2. Rodilla in T2 — tortilla €4.50.',text_ru:'Pans & Company — сэндвич €5. 100 Montaditos — €1–2. Rodilla — тортилья €4.50.'},
+{category:'sleep',severity:'info',text_en:'T4 near S31 (reclining chairs after 11pm). T4S near S5 (sofas). Air Rooms inside T4 from €60 for 6h (with shower).',text_ru:'T4 у S31 (кресла после 23:00). T4S у S5 (диваны). Air Rooms от €60 за 6ч.'},
+{category:'luggage',severity:'info',text_en:'Consigna in T4 arrivals — €8/bag/24h. T1 lockers near metro — €6-10. T2 near gate B — €5-8.',text_ru:'Consigna в T4 — €8/сумка/24ч. T1 — €6–10. T2 — €5–8.'},
+{category:'scams',severity:'warning',text_en:'"Flower scam" — someone puts flower in your hand then demands money. Pickpockets at T4 metro (Line 8).',text_ru:'«Цветочный» обман. Карманники у метро T4 (Линия 8).'},
+{category:'immigration',severity:'info',text_en:'MAD: 10-30 min. eGates for EU/EEA. Madrid is Latin America hub. May ask for return ticket and proof of funds (rare).',text_ru:'MAD: 10–30 минут. eGates для ЕС. Могут попросить обратный билет.'},
+{category:'navigation',severity:'info',text_en:'T1-3 (connected, old) and T4+T4S (new, separate). Free shuttle T1→T4 (15 min). T4→T4S by Wing train (2 min).',text_ru:'T1–3 и T4+T4S. Бесплатный автобус T1→T4 (15 мин). Поезд Wing T4→T4S.'},
+]},
+{code:'FCO',city:'Rome Fiumicino',country:'Italy',countryRu:'Италия',flag:'🇮🇹',terminals:3,difficulty:3,continent:'europe',tips:[
+{category:'transport',severity:'info',text_en:'Leonardo Express to Termini: €14, 32 min. Regional FL1 to Trastevere/Tiburtina: €8, 45 min. Taxi €50 fixed rate.',text_ru:'Leonardo Express до Termini: €14, 32 мин. Региональный FL1: €8. Такси €50.'},
+{category:'transport',severity:'warning',text_en:'Ignore taxi drivers offering higher than posted €50. "Bus transfer" sellers charging €15 for 15-min service — take train.',text_ru:'Такси — фиксированный €50. «Автобусные трансферы» за €15 — возьмите поезд.'},
+{category:'money',severity:'info',text_en:'ATMs: UniCredit, Intesa Sanpaolo (€2-4). T3 arrivals exchange 10% markup. Italy card-friendly but have €50-100 cash.',text_ru:'Банкоматы UniCredit, Intesa Sanpaolo (€2–4). Имейте €50–100 наличными.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "Aeroporto di Roma WiFi" — ~8 Mbps, SMS or passport scan at kiosks. 1 hour. T3 best coverage.',text_ru:'WiFi «Aeroporto di Roma WiFi» — ~8 Мбит/с, SMS или паспорт.'},
+{category:'charging',severity:'info',text_en:'T3 near E1-E10 (USB in seats). T1 near gate A (charging stations). T3 food court has outlets. Types F and L.',text_ru:'T3 у E1–E10 (USB). T1 у A (станции). Типы F и L.'},
+{category:'food',severity:'pro',text_en:'Autogrill in T3 — sandwich €5, coffee €1.50. Mercato Centrale in T3 — pizza al taglio €4-5 per slice.',text_ru:'Autogrill — сэндвич €5, кофе €1.50. Mercato Centrale — пицца €4–5 за кусок.'},
+{category:'sleep',severity:'info',text_en:'T3 near E3 (reclining chairs). T1 near A6 (sofas after 10pm). Aelia Lounge — €30 (includes snacks, shower).',text_ru:'T3 у E3 (кресла). T1 у A6 (диваны). Aelia Lounge — €30 (снеки, душ).'},
+{category:'luggage',severity:'info',text_en:'Deposito Bagagli in T3 arrivals — €8/bag/24h. T1 lockers near gate A — €6-10. Train station — €7/bag.',text_ru:'Deposito Bagagli в T3 — €8/сумка/24ч. T1 — €6–10. Вокзал — €7.'},
+{category:'scams',severity:'warning',text_en:'"Porters" grab trolley and demand €10 — say "no grazie". Taxi drivers say FL1 doesn\'t go to Termini (it goes to Trastevere).',text_ru:'«Носильщики» хватают тележку и требуют €10.'},
+{category:'immigration',severity:'info',text_en:'FCO: 15-35 min. eGates for EU/EEA. Random secondary check possible. Have return ticket printed.',text_ru:'FCO: 15–35 минут. eGates для ЕС. Возможна выборочная проверка.'},
+{category:'navigation',severity:'info',text_en:'T1, T2 (renovation), T3 (main). All connected airside. Walk T1→T3 ~15 min. To Ciampino (CIA): shuttle €6 or taxi €60.',text_ru:'T1, T2 (ремонт), T3 — соединены. До Чампино: шаттл €6 или такси €60.'},
+]},
+{code:'BCN',city:'Barcelona El Prat',country:'Spain',countryRu:'Испания',flag:'🇪🇸',terminals:2,difficulty:3,continent:'europe',tips:[
+{category:'transport',severity:'info',text_en:'Aerobús to Plaça Catalunya: €6.35, 35 min, every 5 min. Metro Line 9: €5.15 (incl supplement). Taxi to center: €30-35.',text_ru:'Aerobús до Plaça Catalunya: €6.35, 35 минут. Метро Линия 9: €5.15. Такси: €30–35.'},
+{category:'transport',severity:'warning',text_en:'Ignore taxi touts in arrivals — official rank at exit. Uber/Cabify pickup at parking lot (follow app).',text_ru:'Официальная стоянка такси у выхода. Uber/Cabify на парковке.'},
+{category:'money',severity:'info',text_en:'ATMs: La Caixa, BBVA (€2-3 fee). Exchange at T1 arrivals — 10% markup. City exchange houses better.',text_ru:'Банкоматы La Caixa, BBVA (€2–3). Обменники — наценка 10%.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "BCN Airport" — ~15 Mbps, email login, 1 hour sessions. T1 has faster connection than T2.',text_ru:'WiFi «BCN Airport» — ~15 Мбит/с, email, часовая сессия. T1 быстрее.'},
+{category:'charging',severity:'info',text_en:'T1 near gates A-E has USB ports at seats (recently renovated). T2 older — limited outlets. Best: T1 food court area.',text_ru:'T1 у A–E — USB (после ремонта). T2 — ограничено. Лучше: фуд-корт T1.'},
+{category:'food',severity:'pro',text_en:'Pans & Company in T1 — sandwich €5. "Food court" in T1 has affordable Spanish options (tortilla €4, pan con tomate €3).',text_ru:'Pans & Company — сэндвич €5. В фуд-корте T1 — тортилья €4, пан кон томате €3.'},
+{category:'sleep',severity:'info',text_en:'BCN open 24h. T1 near gate B (quiet, padded benches). T2 near gate R (sofas). No sleep pods. Nearby airport hotels from €80.',text_ru:'BCN открыт 24/7. T1 у B (скамьи). T2 у R (диваны). Капсул нет.'},
+{category:'luggage',severity:'info',text_en:'Consigna in T1 arrivals — €8/bag/24h. T2 lockers near bus stop — €6-10. Automatic kiosks, card only.',text_ru:'Consigna в T1 — €8/сумка/24ч. T2 — шкафчики — €6–10.'},
+{category:'scams',severity:'warning',text_en:'Pickpockets in Aerobús and metro Line 9. "Rose" scam near arrivals. Watch bags on bus — snatch-and-run reported.',text_ru:'Карманники в Aerobús и метро. «Розовый» обман у входа.'},
+{category:'immigration',severity:'info',text_en:'BCN: 15-30 min for non-EU. eGates for EU/EEA. Barcelona is busy — allow extra time for Schengen entry.',text_ru:'BCN: 15–30 минут. eGates для ЕС. Добавьте время на вход в Шенген.'},
+{category:'navigation',severity:'info',text_en:'T1 (main, most flights) and T2 (budget airlines) connected by free shuttle bus (15 min, 24h). Walkway under construction.',text_ru:'T1 (основной) и T2 (бюджетные). Бесплатный автобус (15 мин).'},
+]},
+{code:'IST',city:'Istanbul',country:'Turkey',countryRu:'Турция',flag:'🇹🇷',terminals:1,difficulty:4,continent:'europe',tips:[
+{category:'transport',severity:'warning',text_en:'Havaist bus to Taksim: €4 ($3.50), 60 min. Taxi to Taksim: ~€20-25 — use official stand. Uber available but drivers prefer cash.',text_ru:'Автобус Havaist до Таксима: €4, 60 минут. Такси: ~€20–25 — только официальная стоянка.'},
+{category:'transport',severity:'pro',text_en:'Metro M11 from IST to Gayrettepe: €3, 35 min, modern and clean. Best option to city. Combined with M2 to Taksim/Sultanahmet.',text_ru:'Метро M11 от IST до Gayrettepe: €3, 35 минут. Лучший вариант.'},
+{category:'money',severity:'warning',text_en:'Currency exchange at IST arrivals has 10-12% markup. Use "Ziraat" or "Garanti" ATMs in baggage claim. Best rates: city exchange houses.',text_ru:'Обменники — наценка 10–12%. Банкоматы Ziraat или Garanti.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "IST Airports" — speed ~15 Mbps, requires Turkish phone number SMS. Use passport scan at kiosks for voucher.',text_ru:'WiFi «IST Airports» — ~15 Мбит/с, нужен SMS или паспорт в киоске.'},
+{category:'charging',severity:'pro',text_en:'IST has excellent charging — USB and outlets at almost every seat in the massive terminal. Best near gates B and D.',text_ru:'IST отлично оснащён — USB и розетки почти у каждого кресла. Лучше у B и D.'},
+{category:'food',severity:'pro',text_en:'"Hisar Restaurant" in food court — pide (Turkish pizza) from €4. "Simit Sarayi" — simit €1.50, Turkish tea €1. Avoid "Mado" (overpriced).',text_ru:'Hisar Restaurant — пиде (турецкая пицца) от €4. Simit Sarayi — симит €1.50.'},
+{category:'sleep',severity:'info',text_en:'IST is massive with many quiet corners. Best: near gate B (quiet area with lounge chairs). "IGA Sleep Pods" — €30 for 2h. Hotel inside — from €100.',text_ru:'IST огромен, тихие зоны у выхода B. Капсулы IGA — €30 за 2ч.'},
+{category:'luggage',severity:'info',text_en:'Luggage storage at arrivals level (both domestic/international) — €10/bag/24h. Lockers available — €8-12. Card accepted.',text_ru:'Хранение багажа на этаже прилёта — €10/сумка/24ч. Шкафчики — €8–12.'},
+{category:'scams',severity:'warning',text_en:'Istanbul has notorious taxi scams — drivers claiming meter is "broken" and demanding flat rate 3x normal. Always check meter is on.',text_ru:'Таксисты говорят, что счётчик «сломан» и просят в 3 раза больше. Проверяйте счётчик.'},
+{category:'immigration',severity:'info',text_en:'IST: 20-40 min. eGates for many nationalities. Turkey requires visa for US/UK/EU (e-visa from $15, must have printed).',text_ru:'IST: 20–40 минут. eGates для многих. Турция требует визу (e-visa от $15, распечатайте).'},
+{category:'navigation',severity:'info',text_en:'IST has one massive terminal — all in one building. Walk from one end to the other takes 30+ min. Use moving walkways. Free shuttle carts for elderly/disabled.',text_ru:'IST — одно огромное здание. От края до края — 30+ минут. Используйте траволаторы.'},
+]},
+{code:'SVO',city:'Moscow Sheremetyevo',country:'Russia',countryRu:'Россия',flag:'🇷🇺',terminals:6,difficulty:4,continent:'europe',tips:[
+{category:'transport',severity:'info',text_en:'Aeroexpress train to Belorussky Station: ₽550 ($6), 35 min. Taxi to center: ₽1500-2000 ($17-22). Yandex Taxi works well.',text_ru:'Аэроэкспресс до Белорусского вокзала: 550₽ ($6), 35 минут. Такси: 1500–2000₽.'},
+{category:'transport',severity:'warning',text_en:'Avoid taxi drivers inside arrivals — 3-4x price. Use Yandex Go app or official taxi booth. "Private transfer" touts are scams.',text_ru:'Избегайте таксистов внутри зоны прилёта — в 3–4 раза дороже. Используйте Яндекс Go.'},
+{category:'money',severity:'warning',text_en:'Currency exchange at SVO has poor rates (10-12% markup). Better: use Sberbank or VTB ATMs. Bring EUR/USD cash as backup.',text_ru:'Обменники — наценка 10–12%. Банкоматы Сбербанка или ВТБ. Имейте евро/доллары.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "SVO_WiFi" — speed ~10 Mbps, requires SMS to Russian number. EU/foreign SIMs may not work. Lounge WiFi is unrestricted.',text_ru:'WiFi «SVO_WiFi» — ~10 Мбит/с, нужен SMS на российский номер.'},
+{category:'charging',severity:'info',text_en:'SVO charging: Terminal B has USB at all new seats. Terminal C and D have fewer outlets. Best: Terminal B food court area.',text_ru:'SVO: в терминале B есть USB в новых креслах. В C и D — меньше.'},
+{category:'food',severity:'pro',text_en:'"Prime" supermarkets in all terminals — sandwiches ₽150-200 ($2). "Shokoladnitsa" coffee — ₽250. "Teremok" in Terminal B — blini ₽300.',text_ru:'Prime — сэндвичи 150–200₽. Shokoladnitsa — кофе 250₽. Teremok в B — блины 300₽.'},
+{category:'sleep',severity:'info',text_en:'SVO open 24h. Terminal B has quiet zone near gate 30 (reclining chairs). "Air Express" sleep pods in Terminal D — ₽1000/hr. "Capella" hotel at Terminal B — from ₽5000.',text_ru:'SVO 24/7. В B — зона отдыха у 30. Капсулы Air Express в D — 1000₽/ч.'},
+{category:'luggage',severity:'info',text_en:'Luggage storage in all terminals — ₽400-600/bag/24h ($5-7). Very affordable. Lockers available in Terminal B and D.',text_ru:'Хранение багажа во всех терминалах — 400–600₽/сумка/24ч ($5–7).'},
+{category:'scams',severity:'warning',text_en:'"Taxi helpers" demanding ₽500 for calling a cab. Fake "customs" officials asking for "fines". Unlicensed currency changers shortchange.',text_ru:'«Помощники такси» просят 500₽. Лже-таможенники штрафуют.'},
+{category:'immigration',severity:'warning',text_en:'SVO immigration can be 30-60 min. Russia requires visa for most nationalities (e-visa available for some). Have migration card ready — keep half for departure.',text_ru:'SVO: 30–60 минут. Нужна виза. Заполните миграционную карту — половину сохраните.'},
+{category:'navigation',severity:'info',text_en:'SVO has multiple terminals: B, C, D, E, F. Aeroexpress connects to B. Free shuttle bus between terminals (10 min). Terminal B is newest.',text_ru:'SVO: несколько терминалов. Бесплатный автобус (10 мин). B — самый новый.'},
+]},
+{code:'DME',city:'Moscow Domodedovo',country:'Russia',countryRu:'Россия',flag:'🇷🇺',terminals:1,difficulty:4,continent:'europe',tips:[
+{category:'transport',severity:'info',text_en:'Aeroexpress train to Paveletsky Station: ₽550 ($6), 45 min. Taxi to center: ₽1500-2000 ($17-22). Yandex Taxi from parking lot.',text_ru:'Аэроэкспресс до Павелецкого вокзала: 550₽, 45 минут. Такси: 1500–2000₽.'},
+{category:'transport',severity:'warning',text_en:'Bus to Domodedovskaya metro: ₽150, then metro to center (₽75). Cheapest but 90+ min. Taxi drivers in arrivals charge double.',text_ru:'Автобус до Домодедовской (150₽), затем метро. Дешево, но 90+ минут.'},
+{category:'money',severity:'info',text_en:'ATMs: VTB, Sberbank, Alfa-Bank in arrivals. Currency exchange 10% markup. Use ATMs for better rates.',text_ru:'Банкоматы ВТБ, Сбербанк, Альфа-Банк. Обменники — наценка 10%.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "Domodedovo WiFi" — speed ~8 Mbps, SMS verification required. Works throughout terminal.',text_ru:'WiFi «Domodedovo WiFi» — ~8 Мбит/с, SMS-подтверждение.'},
+{category:'charging',severity:'info',text_en:'Charging stations in main terminal near gates 10-20, and in food court area. Limited USB ports — bring power bank.',text_ru:'Зарядки у выходов 10–20 и в фуд-корте. USB мало — берите пауэрбанк.'},
+{category:'food',severity:'pro',text_en:'"Kroshka Kartoshka" in food court — stuffed potatoes from ₽200 ($2.50). "Shokoladnitsa" — coffee ₽250. "Prime" supermarket — snacks.',text_ru:'Kroshka Kartoshka — фаршированная картошка от 200₽. Shokoladnitsa — кофе 250₽.'},
+{category:'sleep',severity:'info',text_en:'DME open 24h. Quiet zones on second floor near gate 12 (limited seating). "Express Hotel" inside terminal — ₽3000-5000.',text_ru:'DME 24/7. Тихие зоны на втором этаже у 12. Отель внутри — 3000–5000₽.'},
+{category:'luggage',severity:'info',text_en:'Left luggage near arrivals exit — ₽400/bag/24h. Lockers for small items — ₽200-300. Very cheap, cash only.',text_ru:'Хранение у выхода из прилёта — 400₽/сумка/24ч. Шкафчики — 200–300₽.'},
+{category:'scams',severity:'warning',text_en:'"Official" porters demanding ₽500. Taxi drivers claiming Aeroexpress is "closed for repair". Unregistered taxi drivers.',text_ru:'«Носильщики» просят 500₽. Таксисты говорят, что Аэроэкспресс не ходит.'},
+{category:'immigration',severity:'warning',text_en:'DME: 30-60 min. Same visa rules as SVO. Migration card required. Allow extra time for passport control.',text_ru:'DME: 30–60 минут. Те же правила визы. Миграционная карта.'},
+{category:'navigation',severity:'info',text_en:'DME has one main terminal building. International and domestic in same building, different wings. Easy to navigate, 15 min walk end-to-end.',text_ru:'DME — одно здание. Международные и внутренние рейсы в разных крыльях.'},
+]},
+{code:'LED',city:'St. Petersburg Pulkovo',country:'Russia',countryRu:'Россия',flag:'🇷🇺',terminals:2,difficulty:3,continent:'europe',tips:[
+{category:'transport',severity:'info',text_en:'Taxi to Nevsky Prospect: ₽1200-1500 ($14-17) — use Yandex Go from parking lot. Bus 39 to Moskovskaya metro: ₽75, then metro to center.',text_ru:'Такси до Невского проспекта: 1200–1500₽ — Яндекс Go. Автобус 39 до метро Московская: 75₽.'},
+{category:'transport',severity:'warning',text_en:'Aeroexpress train from Pulkovo is suspended (2024). Only buses and taxis available. Ignore touts offering "express bus" at double price.',text_ru:'Аэроэкспресс отменён. Только автобусы и такси. Игнорируйте «экспресс-автобусы».'},
+{category:'money',severity:'info',text_en:'ATMs: Gazprombank, Sberbank in arrivals. Exchange rate poor (8-10% markup). Best: withdraw rubles from ATM.',text_ru:'Банкоматы Газпромбанка и Сбербанка. Обменники — наценка 8–10%.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "Pulkovo_Free" — speed ~10 Mbps, requires phone number or passport scan at kiosk. Works in all areas.',text_ru:'WiFi «Pulkovo_Free» — ~10 Мбит/с, нужен номер телефона или паспорт.'},
+{category:'charging',severity:'info',text_en:'Charging stations in new terminal (Pulkovo-1) near gates 1-10. USB ports at some seats. Older terminal limited.',text_ru:'Зарядки в новом терминале у 1–10. USB в некоторых креслах.'},
+{category:'food',severity:'pro',text_en:'"Yolki-Palki" in food court — Russian cuisine combo ₽400 ($5). "Market Place" — self-service bowls from ₽350. "Chaykoff" bakery.',text_ru:'Yolki-Palki — русская кухня 400₽. Market Place — боулы от 350₽.'},
+{category:'sleep',severity:'info',text_en:'LED open 24h. Quiet zone on second floor (limited seating). "Hotel Complex" at Pulkovo — from ₽4000. Some benches have no armrests.',text_ru:'LED 24/7. Тихая зона на втором этаже. Отель у аэропорта от 4000₽.'},
+{category:'luggage',severity:'info',text_en:'Storage room near international arrivals — ₽350/bag/24h. Very affordable. Cash only (rubles).',text_ru:'Хранение у международного прилёта — 350₽/сумка/24ч. Только рубли.'},
+{category:'scams',severity:'warning',text_en:'Unofficial taxi drivers charging 3x. "Porter" scam — demanding ₽400 for carrying bag 100m. Unofficial currency exchange.',text_ru:'Неофициальные такси в 3 раза дороже. «Носильщики» просят 400₽.'},
+{category:'immigration',severity:'warning',text_en:'LED: 20-40 min. Russia visa required for most. Migration card. Pulkovo has e-visa kiosks for eligible nationalities.',text_ru:'LED: 20–40 минут. Нужна виза. Электронная виза для некоторых.'},
+{category:'navigation',severity:'info',text_en:'Pulkovo has two terminals connected by walkway (5 min). New terminal handles all international + most domestic. Old terminal for some domestic.',text_ru:'Два терминала, соединены переходом (5 мин). Новый — все международные рейсы.'},
+]},
+{code:'DUB',city:'Dublin',country:'Ireland',countryRu:'Ирландия',flag:'🇮🇪',terminals:2,difficulty:2,continent:'europe',tips:[
+{category:'transport',severity:'info',text_en:'Aircoach (Dublin Bus) to city center: €8, 30-45 min. Dublin Express: €7. Taxi to city: €25-35 flat rate. Uber limited in Dublin.',text_ru:'Aircoach до центра Дублина: €8, 30–45 минут. Такси: €25–35.'},
+{category:'transport',severity:'warning',text_en:'Taxi drivers claim "flat rate" higher than €25-35 — insist on meter (which is standard). Bus 16 to city: €2.80 with Leap Card.',text_ru:'Таксисты завышают тариф — настаивайте на счётчике. Автобус 16 — €2.80.'},
+{category:'money',severity:'info',text_en:'ATMs in arrivals: AIB and Bank of Ireland (no fee for Irish cards, €2-4 for others). Currency exchange 8% markup. Ireland is very card-friendly.',text_ru:'Банкоматы AIB и Bank of Ireland (€2–4). В Ирландии везде принимают карты.'},
+{category:'wifi',severity:'pro',text_en:'Free WiFi "Dublin Airport WiFi" — speed ~30 Mbps, no login needed, unlimited. One of the fastest airport WiFis in Europe.',text_ru:'WiFi «Dublin Airport WiFi» — ~30 Мбит/с, без регистрации, безлимит.'},
+{category:'charging',severity:'info',text_en:'T1 and T2 both have USB at gates (T2 better). Charging station near gate 40 in T2. Best: T2 near gate 30-40 area. Type G plugs.',text_ru:'USB есть в T1 и T2 (T2 лучше). T2 у 30–40. Тип G.'},
+{category:'food',severity:'pro',text_en:'"Butler\'s Pantry" in T1 — coffee + pastry €5. "Wrights" in T2 — breakfast roll €6. "Spar" shop — meal deal €5.',text_ru:'Butler\'s Pantry в T1 — кофе + выпечка €5. Wrights — завтрак €6.'},
+{category:'sleep',severity:'info',text_en:'DUB open 24h. T1 near gate 10 (quiet). T2 near gate 30 (sofas). "Sleepzone" in T1 — €25 for 3h. Hotel "Maldron" connected — from €100.',text_ru:'DUB 24/7. T1 у 10 (тихо), T2 у 30 (диваны). Sleepzone — €25 за 3ч.'},
+{category:'luggage',severity:'info',text_en:'Left Baggage at T1 arrivals (near exit) — €10/bag/24h. T2 has lockers — €8-12. Open 24h. Card accepted.',text_ru:'Left Baggage в T1 — €10/сумка/24ч. T2 — шкафчики — €8–12.'},
+{category:'scams',severity:'info',text_en:'DUB is generally safe. Taxi overcharging is the main issue — always check meter or agree price before ride.',text_ru:'DUB безопасен. Главная проблема — такси. Проверяйте счётчик.'},
+{category:'immigration',severity:'info',text_en:'DUB: 15-30 min for non-EU. eGates for EU/EEA/UK. Ireland is not in Schengen — separate customs from UK.',text_ru:'DUB: 15–30 минут. eGates для ЕС/UK. Ирландия не в Шенгене.'},
+{category:'navigation',severity:'pro',text_en:'DUB has T1 and T2 connected airside. Walk between them takes 10 min. Clear signage. Very easy to navigate.',text_ru:'DUB: T1 и T2 соединены внутри. 10 минут пешком. Простая навигация.'},
+]},
+{code:'ZRH',city:'Zurich',country:'Switzerland',countryRu:'Швейцария',flag:'🇨🇭',terminals:2,difficulty:2,continent:'europe',tips:[
+{category:'transport',severity:'pro',text_en:'Train from ZRH to Zurich HB: CHF 6.80, 10 min, every 5-10 min. Best option. Taxi to city: CHF 40-50 fixed. Tram from airport: CHF 6.80.',text_ru:'Поезд до Zurich HB: CHF 6.80, 10 минут. Такси: CHF 40–50.'},
+{category:'transport',severity:'info',text_en:'Zurich card (CHF 29/day) covers airport transfer and city transport. Swiss Travel Pass also valid. Zurich is very walkable from HB.',text_ru:'Zurich Card (CHF 29/день) включает трансфер и транспорт.'},
+{category:'money',severity:'info',text_en:'ATMs: UBS, Credit Suisse, ZKB (€3-5 fee). Currency exchange 6-8% markup — slightly better than average. Switzerland is card-friendly.',text_ru:'Банкоматы UBS, Credit Suisse (€3–5). Швейцария — карты везде.'},
+{category:'wifi',severity:'pro',text_en:'Free WiFi "Zurich Airport WiFi" — speed ~50 Mbps, no login, unlimited. Excellent throughout the airport. One of the best.',text_ru:'WiFi «Zurich Airport WiFi» — ~50 Мбит/с, без регистрации. Отличный.'},
+{category:'charging',severity:'pro',text_en:'ZRH has USB at almost every seat in all areas. Many seats have wireless charging pads. Best: areas near gates E and A.',text_ru:'USB почти в каждом кресле. Беспроводная зарядка у E и A.'},
+{category:'food',severity:'info',text_en:'ZRH is expensive. Cheapest: "Migros" supermarket after security — sandwiches CHF 7-9. "Brezel" stand — CHF 3.50. "Marché" — pasta from CHF 12.',text_ru:'ZRH дорогой. Migros — сэндвичи CHF 7–9. Брецель — CHF 3.50.'},
+{category:'sleep',severity:'pro',text_en:'ZRH is excellent for sleeping. "Alice" sleep pods near gate E — CHF 30 for 2h. Free: "Observation Deck" (open 11-17h) has lounge chairs.',text_ru:'ZRH отлично для сна. Alice pods — CHF 30 за 2ч. Бесплатно: обзорная площадка.'},
+{category:'luggage',severity:'info',text_en:'Luggage storage near train station (arrivals 1) — CHF 10/bag/24h small, CHF 15 large. Lockers CHF 8-12. Open 24h.',text_ru:'Хранение у вокзала — CHF 10/сумка/24ч (мал), CHF 15 (бол).'},
+{category:'scams',severity:'info',text_en:'ZRH has very few scams. Some overpriced taxi offers. Switzerland is generally safe with strict law enforcement.',text_ru:'ZRH — мало мошенников. Швейцария безопасна.'},
+{category:'immigration',severity:'pro',text_en:'ZRH: 10-20 min for non-EU (efficient). eGates for EU/EEA. Switzerland is in Schengen. Fast processing.',text_ru:'ZRH: 10–20 минут. eGates для ЕС. Швейцария в Шенгене.'},
+{category:'navigation',severity:'pro',text_en:'ZRH has 2 terminals (A and B) + E (satellite) connected by train and walkways. All connected airside. Very easy. 15 min max walk.',text_ru:'ZRH: 2 терминала + E (сателлит). Всё соединено, максимум 15 минут.'},
+]},
+{code:'VIE',city:'Vienna',country:'Austria',countryRu:'Австрия',flag:'🇦🇹',terminals:3,difficulty:2,continent:'europe',tips:[
+{category:'transport',severity:'info',text_en:'S-Bahn to Wien Mitte: €4.50, 25 min. CAT (City Airport Train): €12, 16 min (fastest). Taxi to center: €30-40 fixed.',text_ru:'S-Bahn до Wien Mitte: €4.50, 25 минут. CAT: €12, 16 минут. Такси: €30–40.'},
+{category:'transport',severity:'info',text_en:'Vienna has 24/7 public transport. Night bus from airport runs when trains stop. Wien Ticket (€5.40) covers single ride to airport.',text_ru:'Круглосуточный транспорт. Ночной автобус от аэропорта. Wien Ticket — €5.40.'},
+{category:'money',severity:'info',text_en:'ATMs: Erste Bank, Raiffeisen in arrivals (€2-3 fee). Currency exchange 8% markup. Austria is very card-friendly.',text_ru:'Банкоматы Erste Bank, Raiffeisen (€2–3). В Австрии везде карты.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "VIE WiFi" — speed ~15 Mbps, email registration, unlimited time. Works in all terminals and lounges.',text_ru:'WiFi «VIE WiFi» — ~15 Мбит/с, регистрация по email, безлимит.'},
+{category:'charging',severity:'info',text_en:'VIE has USB ports at many seats. Best: T3 near gates C-D (newer). T1 also has charging stations near food court. Type F.',text_ru:'VIE — USB во многих креслах. T3 у C–D (новые). T1 — у фуд-корта.'},
+{category:'food',severity:'pro',text_en:'"Billa" supermarket after security — sandwiches €4. "Auer" bakery — sausage roll €3.50. "Marché" — pasta from €6. Avoid airport restaurants.',text_ru:'Billa — сэндвичи €4. Auer — колбаска в тесте €3.50. Marché — паста от €6.'},
+{category:'sleep',severity:'info',text_en:'VIE open 24h. Best: T3 near gate F (quiet area, sofa chairs). T1 near gate B (padded benches). "Niki" lounge pods — €25 for 2h.',text_ru:'VIE 24/7. T3 у F (диваны). T1 у B (скамьи). Капсулы — €25 за 2ч.'},
+{category:'luggage',severity:'info',text_en:'Left Baggage at T3 arrivals — €7/bag/24h. T1 lockers — €5-8. Very affordable. Card payment available.',text_ru:'Left Baggage в T3 — €7/сумка/24ч. T1 — шкафчики — €5–8.'},
+{category:'scams',severity:'info',text_en:'VIE is safe. Main issue: taxi drivers offering "sightseeing route" to increase fare. Use public transport or agree price.',text_ru:'VIE безопасен. Таксисты иногда завышают маршрут.'},
+{category:'immigration',severity:'pro',text_en:'VIE: 10-20 min for non-EU. eGates for EU/EEA. Vienna is efficient and rarely has queues at immigration.',text_ru:'VIE: 10–20 минут. eGates для ЕС. Вена эффективна.'},
+{category:'navigation',severity:'pro',text_en:'VIE has T1, T2, T3 all connected. T3 is main. Walk T1→T3 ~15 min. Clear signs. Vienna Airport app has directions.',text_ru:'VIE: T1–T3 соединены. T3 — основной. T1→T3 — 15 минут.'},
+]},
+{code:'CPH',city:'Copenhagen',country:'Denmark',countryRu:'Дания',flag:'🇩🇰',terminals:3,difficulty:2,continent:'europe',tips:[
+{category:'transport',severity:'pro',text_en:'Train from CPH to Copenhagen Central: DKK 36 ($5), 13 min, every 10 min. Fast and cheap. Metro also available (M2). Taxi: DKK 300-400.',text_ru:'Поезд до центра: DKK 36 ($5), 13 минут. Метро M2. Такси: DKK 300–400.'},
+{category:'transport',severity:'info',text_en:'DSB train and Metro both serve the airport. Same ticket (DKK 36) works for both. Buy in app or at machines. Rejsekort card for frequent travel.',text_ru:'Поезд DSB и метро — один билет (DKK 36). Приложение или автоматы.'},
+{category:'money',severity:'info',text_en:'ATMs: Danske Bank, Nordea (DKK 20-30 fee). Denmark is mostly cashless — cards accepted everywhere. Exchange rates poor at airport.',text_ru:'Банкоматы Danske Bank, Nordea. Дания почти без наличных.'},
+{category:'wifi',severity:'pro',text_en:'Free WiFi "CPH Airport" — speed ~40 Mbps, no login, unlimited. Excellent coverage throughout. One of Europe\'s best.',text_ru:'WiFi «CPH Airport» — ~40 Мбит/с, без регистрации. Отличный.'},
+{category:'charging',severity:'pro',text_en:'USB ports at virtually every seat. Dedicated charging tables in T2 and T3. Wireless charging pads available in lounges. Type K and E.',text_ru:'USB почти в каждом кресле. Столы для зарядки в T2 и T3.'},
+{category:'food',severity:'pro',text_en:'"7-Eleven" in T2 and T3 — sandwich DKK 49 ($7). "Joe & The Juice" — juice DKK 45. "Gasoline Grill" in T3 — burger DKK 85 — excellent.',text_ru:'7-Eleven — сэндвич DKK 49. Joe & The Juice — сок DKK 45. Gasoline Grill — бургер DKK 85.'},
+{category:'sleep',severity:'pro',text_en:'CPH is great for sleeping. T2 near gate C (quiet, reclining chairs). T3 near gate A (sofas). "Sleep Cabins" in T2 — DKK 150 for 2h.',text_ru:'CPH отличен для сна. T2 у C (кресла). T3 у A (диваны). Кабины — DKK 150 за 2ч.'},
+{category:'luggage',severity:'info',text_en:'Luggage storage at T2/T3 arrivals — DKK 50/bag/24h. Lockers DKK 30-50. Very affordable. Open 24h.',text_ru:'Хранение в T2/T3 — DKK 50/сумка/24ч. Шкафчики — DKK 30–50.'},
+{category:'scams',severity:'info',text_en:'CPH is very safe. Some taxi drivers may overcharge tourists — insist on meter. No major scam reports.',text_ru:'CPH очень безопасен. Таксисты могут завышать цену.'},
+{category:'immigration',severity:'pro',text_en:'CPH: 10-20 min for non-EU. eGates for EU/EEA. Denmark is in Schengen. Very efficient passport control.',text_ru:'CPH: 10–20 минут. eGates для ЕС. Эффективный контроль.'},
+{category:'navigation',severity:'pro',text_en:'CPH has single terminal concept (T2+T3 connected). Easy navigation. Max 10 min walk between farthest gates. Copenhagen Airport app helpful.',text_ru:'CPH — один терминал (T2+T3). Максимум 10 минут между выходами.'},
+]},
+{code:'NRT',city:'Tokyo Narita',country:'Japan',countryRu:'Япония',flag:'🇯🇵',terminals:3,difficulty:3,continent:'asia',tips:[
+{category:'transport',severity:'info',text_en:'Narita Express (N\'EX) to Tokyo Station: ¥3,070 ($20), 60 min. Keisei Skyliner to Ueno: ¥2,570, 40 min. Bus to Tokyo: ¥1,300 ($8.50) — cheapest.',text_ru:'Narita Express до Токио: ¥3,070, 60 мин. Keisei Skyliner: ¥2,570, 40 мин. Автобус: ¥1,300.'},
+{category:'transport',severity:'pro',text_en:'Keisei "Access Express" — ¥1,330, 60 min to Ueno/Haneda — best value. JR Pass covers N\'EX at no extra cost. Suica/PASMO works on all.',text_ru:'Keisei Access Express — ¥1,330, 60 минут. JR Pass покрывает N\'EX.'},
+{category:'money',severity:'info',text_en:'ATMs in arrivals: 7-Eleven, Japan Post (lowest fees). Currency exchange 5-7% markup — better than US airports. Japan is still cash-dependent.',text_ru:'Банкоматы 7-Eleven, Japan Post. Япония — наличные нужны. Обмен — наценка 5–7%.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "Narita_Free_WiFi" — speed ~15 Mbps, requires email, unlimited time. Can also rent pocket WiFi at arrivals (¥500/day).',text_ru:'WiFi «Narita_Free_WiFi» — ~15 Мбит/с. Аренда карманного WiFi — ¥500/день.'},
+{category:'charging',severity:'pro',text_en:'USB ports at most seats in T1 and T2 (recently renovated). T3 has fewer. Japan uses Type A and B plugs (same as US). Charging station near gate 30.',text_ru:'USB в T1 и T2 (после ремонта). T3 — меньше. Япония — тип A/B.'},
+{category:'food',severity:'pro',text_en:'"Food Court" in T1 before security — ramen ¥800-1,000 ($6-7). "Ganko Sushi" in T2 — sushi set ¥1,200. 7-Eleven after security — onigiri ¥150.',text_ru:'Фуд-корт T1 — рамен ¥800–1,000. Ganko Sushi в T2 — суши ¥1,200. 7-Eleven — онигири ¥150.'},
+{category:'sleep',severity:'info',text_en:'NRT sleep: T1 near gate 38 (quiet, padded benches). T2 near gate 50 (sofas). "9h" capsule hotel in T2 — ¥4,000 for 9 hours. Free blankets at info counter.',text_ru:'NRT: T1 у 38 (скамьи), T2 у 50 (диваны). Капсульный отель 9h — ¥4,000.'},
+{category:'luggage',severity:'info',text_en:'Luggage storage in T1 and T2 arrivals — ¥500-700/bag/24h ($4-5). Very affordable. Coin lockers also available (¥300-600).',text_ru:'Хранение в T1 и T2 — ¥500–700/сумка/24ч. Шкафчики — ¥300–600.'},
+{category:'scams',severity:'info',text_en:'NRT has few scams. Taxi from Narita to Tokyo is extremely expensive (¥25,000+) — avoid. Only use trains/buses.',text_ru:'NRT — мало мошенников. Такси до Токио очень дорогое (¥25,000+).'},
+{category:'immigration',severity:'info',text_en:'NRT: 20-45 min. eGates for Japanese and some nationalities. Fill out Visit Japan code online for faster processing. Have hotel address ready.',text_ru:'NRT: 20–45 минут. Visit Japan код онлайн. Адрес отеля нужен.'},
+{category:'navigation',severity:'info',text_en:'NRT has 3 terminals. T1+T2 connected by walkway (15 min). T3 is separate — free shuttle bus (10 min). Allow 1h for inter-terminal connections.',text_ru:'NRT: 3 терминала. T1+T2 — переход (15 мин). T3 — автобус (10 мин).'},
+]},
+{code:'HND',city:'Tokyo Haneda',country:'Japan',countryRu:'Япония',flag:'🇯🇵',terminals:3,difficulty:2,continent:'asia',tips:[
+{category:'transport',severity:'pro',text_en:'Tokyo Monorail to Hamamatsucho: ¥520 ($3.50), 20 min. Keikyu Line to Shinagawa: ¥330, 15 min. Both fast and cheap. Taxi to Shibuya: ¥6,000-8,000.',text_ru:'Tokyo Monorail до Hamamatsucho: ¥520, 20 мин. Keikyu до Shinagawa: ¥330.'},
+{category:'transport',severity:'pro',text_en:'Haneda is much closer to Tokyo than Narita. Use Suica/PASMO contactless card on all transport. 24/7 bus service to major hotels.',text_ru:'Haneda ближе к Токио. Существенно дешевле и быстрее Narita.'},
+{category:'money',severity:'info',text_en:'ATMs: 7-Eleven, Japan Post, SMBC in arrivals. Load Suica/PASMO at machines in train station area (cash only for cards).',text_ru:'Банкоматы 7-Eleven, Japan Post. Suica/PASMO — наличные для пополнения.'},
+{category:'wifi',severity:'pro',text_en:'Free WiFi "Haneda_Free_WiFi" — speed ~25 Mbps, no login required, unlimited. Excellent throughout. Also "Japan WiFi" auto-connect.',text_ru:'WiFi «Haneda_Free_WiFi» — ~25 Мбит/с, без регистрации. Отличный.'},
+{category:'charging',severity:'pro',text_en:'HND has USB and outlets at virtually every seat (all terminals). T3 (international) has wireless charging in lounge areas. Japan Type A/B.',text_ru:'USB и розетки почти везде. T3 — беспроводная зарядка.'},
+{category:'food',severity:'pro',text_en:'"Tokyo Food Show" in T3 (departures) — amazing selection of Japanese food. Ramen sets ¥1,200. Sushi ¥1,500-2,000. 7-Eleven — onigiri ¥150.',text_ru:'Tokyo Food Show в T3 — отличный выбор японской еды. Рамен ¥1,200.'},
+{category:'sleep',severity:'pro',text_en:'HND is excellent for sleep. T3 near gate 114 (reclining chairs, quiet). "First Cabin" capsule hotel in T3 — ¥4,500 for 9h. Free towels in some lounges.',text_ru:'HND отличен для сна. T3 у 114 (кресла). First Cabin — ¥4,500 за 9ч.'},
+{category:'luggage',severity:'info',text_en:'Luggage storage in T3 arrivals — ¥600/bag/24h. T1 and T2 also have coin lockers. Services at rail station area (¥400-800).',text_ru:'Хранение в T3 — ¥600/сумка/24ч. Шкафчики — ¥400–800.'},
+{category:'scams',severity:'info',text_en:'HND is extremely safe. Very few scam reports. Taxi drivers are honest and use meters. Standard Japanese reliability.',text_ru:'HND — безопасен. Таксисты честные, по счётчику.'},
+{category:'immigration',severity:'info',text_en:'HND: 15-30 min for non-Japanese. eGates for Japanese nationals. Visit Japan web code recommended. Fingerprinting required.',text_ru:'HND: 15–30 минут. Visit Japan код. Отпечатки пальцев.'},
+{category:'navigation',severity:'pro',text_en:'HND has 3 terminals connected airside. Walk T1→T2→T3 via skywalk (T1→T3 = 20 min). Free shuttle bus also available. Very clear signs.',text_ru:'HND: 3 терминала соединены. T1→T3 — 20 минут. Бесплатный автобус.'},
+]},
+{code:'SIN',city:'Singapore Changi',country:'Singapore',countryRu:'Сингапур',flag:'🇸🇬',terminals:4,difficulty:1,continent:'asia',tips:[
+{category:'transport',severity:'pro',text_en:'MRT to city: SGD 2-3 ($1.50-2), 30 min to Raffles Place. Taxi: SGD 25-40. Grab cheaper than taxi. Free shuttle to various malls (Hotel Grand Central etc).',text_ru:'MRT до центра: SGD 2–3, 30 минут. Такси: SGD 25–40. Grab дешевле.'},
+{category:'transport',severity:'pro',text_en:'Changi is connected to the city by the MRT directly from T2/T3. The free "Skytrain" connects all terminals. "Changi Airport" MRT station is between T2 and T3.',text_ru:'MRT от T2/T3. Бесплатный Skytrain между терминалами.'},
+{category:'money',severity:'info',text_en:'ATMs: DBS, OCBC, UOB at all terminals (no fee for local cards, SGD 3-5 for others). Exchange rates poor (6-8% markup). Singapore is card-friendly.',text_ru:'Банкоматы DBS, OCBC, UOB (SGD 3–5). Сингапур — карты везде.'},
+{category:'wifi',severity:'pro',text_en:'Free WiFi "Changi WiFi" — speed ~50 Mbps, no login, unlimited. One of the best airport WiFis in the world. Also "Wireless@SG".',text_ru:'WiFi «Changi WiFi» — ~50 Мбит/с, без регистрации. Лучший в мире.'},
+{category:'charging',severity:'pro',text_en:'USB and outlets at every seat in all terminals. Wireless charging pads throughout. Singapore uses Type G plugs.',text_ru:'USB и розетки везде. Беспроводная зарядка. Тип G.'},
+{category:'food',severity:'pro',text_en:'Changi food is excellent and affordable. "Food Court" in T2 — $5-8 SGD. "Hawker-style" food in T1 (before security). "Shake Shack" in T3 — $10 SGD.',text_ru:'Чанги — отличная еда. Фуд-корт T2 — SGD 5–8. Hawker-style в T1.'},
+{category:'sleep',severity:'pro',text_en:'Changi is THE best airport for sleeping. T2 near gate 26 has "Snooze Lounge" (free recliners). T3 near gate B (quiet). Free movie theatres in T2/T3.',text_ru:'Чанги — лучший аэропорт для сна. Snooze Lounge в T2. Кинотеатры.'},
+{category:'luggage',severity:'info',text_en:'Luggage storage: "SmarteCarte" at T1/T2/T3 arrivals — SGD 10-15/bag/24h. "Changi Recommends" left luggage — SGD 10. Open 24h.',text_ru:'SmarteCarte в T1/T2/T3 — SGD 10–15/сумка/24ч.'},
+{category:'scams',severity:'info',text_en:'Changi is very safe. Almost no scams. Standard tourist taxi pricing applies. Singapore has strict laws — everything is well-regulated.',text_ru:'Чанги безопасен. Почти нет мошенников.'},
+{category:'immigration',severity:'pro',text_en:'SIN: 10-25 min (very efficient). eGates for many nationalities (Singapore has automated lanes). Fill out SG Arrival Card online in advance.',text_ru:'SIN: 10–25 минут. eGates для многих. Карта SG Arrival онлайн.'},
+{category:'navigation',severity:'pro',text_en:'SIN has T1, T2, T3, T4. Skytrain connects T1-T2-T3 airside. T4 is separate — free shuttle bus. Jewel mall is connected to T1. Very easy navigation.',text_ru:'SIN: 4 терминала. Skytrain между T1–T3. T4 — автобус. Торговый центр Jewel.'},
+]},
+{code:'HKG',city:'Hong Kong',country:'Hong Kong',countryRu:'Гонконг',flag:'🇭🇰',terminals:2,difficulty:2,continent:'asia',tips:[
+{category:'transport',severity:'info',text_en:'Airport Express to Hong Kong Station: HKD 115 ($15), 24 min. Bus A21 to Kowloon: HKD 33 ($4.20), 45 min. Taxi to Central: HKD 250-350.',text_ru:'Airport Express до Hong Kong Station: HKD 115, 24 мин. Автобус A21: HKD 33.'},
+{category:'transport',severity:'pro',text_en:'Octopus card — buy at Airport Express counter, use on all public transport. MTR Tung Chung line from Tung Chung station (S1 bus from airport).',text_ru:'Octopus — купите на Airport Express. MTR от станции Tung Chung.'},
+{category:'money',severity:'info',text_en:'ATMs: HSBC, Bank of China, Standard Chartered (HKD 20-30 fee). Currency exchange 6% markup. Hong Kong is very card-friendly but have HKD 500 cash.',text_ru:'Банкоматы HSBC, Bank of China. Гонконг — карты везде.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "HKG Free WiFi" — speed ~20 Mbps, requires phone number SMS OR passport at kiosk. Valid for 24h.',text_ru:'WiFi «HKG Free WiFi» — ~20 Мбит/с, нужен SMS или паспорт.'},
+{category:'charging',severity:'pro',text_en:'USB ports at most seats in T1 (recently renovated). T2 has charging counters near gates. Hong Kong uses Type G plugs (3 flat pins).',text_ru:'USB в T1 (после ремонта). T2 — стойки. Гонконг — тип G.'},
+{category:'food',severity:'pro',text_en:'Food court in T1 before security — wonton noodles HKD 45 ($6). "Café de Coral" — HK-style meal HKD 55. "McDonald\'s" available. 7-Eleven for snacks.',text_ru:'Фуд-корт T1 — вонтон-нудлс HKD 45. Café de Coral — HKD 55.'},
+{category:'sleep',severity:'info',text_en:'HKG sleep: T1 near gate 28 (quiet, reclining chairs). T1 near gate 15 (sofa chairs). "Plaza Premium Lounge" — pay-to-enter (HKD 350, includes shower).',text_ru:'HKG: T1 у 28 (кресла), T1 у 15 (диваны). Plaza Premium — HKD 350.'},
+{category:'luggage',severity:'info',text_en:'Luggage storage at T1 arrivals (near exit) — HKD 60-80/bag/24h ($8-10). Lockers available HKD 50-70. Open 24h.',text_ru:'Хранение в T1 — HKD 60–80/сумка/24ч. Шкафчики — HKD 50–70.'},
+{category:'scams',severity:'info',text_en:'HKG is safe. Some taxi drivers may overcharge by taking longer routes. Octopus card prevents need for large cash.',text_ru:'HKG безопасен. Таксисты могут накручивать маршрут.'},
+{category:'immigration',severity:'pro',text_en:'HKG: 10-25 min. eGates for HK residents and some nationalities. Hong Kong has separate immigration from China. Very efficient.',text_ru:'HKG: 10–25 минут. eGates для некоторых. Отдельная иммиграция от Китая.'},
+{category:'navigation',severity:'pro',text_en:'HKG has T1 (main) and T2 (check-in only, no gates). T1 is huge but well-signposted. Automated people mover connects satellite buildings.',text_ru:'HKG: T1 (основной) + T2 (только регистрация). Поезд между корпусами.'},
+]},
+{code:'ICN',city:'Seoul Incheon',country:'South Korea',countryRu:'Южная Корея',flag:'🇰🇷',terminals:2,difficulty:2,continent:'asia',tips:[
+{category:'transport',severity:'info',text_en:'AREX Express to Seoul Station: KRW 9,500 ($7), 43 min. All-stop train: KRW 4,750 ($3.50), 60 min. Taxi to Myeongdong: KRW 60,000-80,000.',text_ru:'AREX Express до Seoul Station: 9,500 вон ($7), 43 мин. Обычный: 4,750 вон.'},
+{category:'transport',severity:'pro',text_en:'T-money card — buy at convenience store in airport. Works on all transport. AREX all-stop train is best value. Airport bus to Gangnam: KRW 18,000.',text_ru:'T-money — купите в магазине. AREX обычный — лучшая цена.'},
+{category:'money',severity:'info',text_en:'ATMs: Shinhan, KEB Hana, Woori (KRW 3,000-5,000 fee). Currency exchange 5-7% markup. Korea is very card-friendly but have KRW 50,000 cash.',text_ru:'Банкоматы Shinhan, KEB Hana (3,000–5,000 вон). Корея — карты.'},
+{category:'wifi',severity:'pro',text_en:'Free WiFi "Incheon Airport WiFi" — speed ~30 Mbps, no login required, unlimited. Excellent throughout. Korea has the fastest internet in the world.',text_ru:'WiFi «Incheon Airport WiFi» — ~30 Мбит/с, без регистрации. Отличный.'},
+{category:'charging',severity:'pro',text_en:'USB and outlets at every seat in T1 and T2. Wireless charging in lounges and some gate areas. Korea uses Type C and F (like Europe).',text_ru:'USB и розетки везде. Беспроводная зарядка. Типы C и F.'},
+{category:'food',severity:'pro',text_en:'Food court in T1 — bibimbap KRW 9,000 ($7), kimchi jjigae KRW 8,000. T2 has Korean BBQ restaurant — set menu KRW 15,000. 7-Eleven — kimbap KRW 2,500.',text_ru:'Фуд-корт T1 — бибимбап 9,000 вон. T2 — корейский BBQ. 7-Eleven — кимбап 2,500 вон.'},
+{category:'sleep',severity:'pro',text_en:'ICN excellent for sleeping. T1 near gate 25 (nap zone with recliners). T2 near gate 28 (quiet area). "Rest and Relax" capsule hotel — KRW 30,000 for 3h.',text_ru:'ICN отличен для сна. T1 у 25 (зона отдыха). Капсулы — 30,000 вон за 3ч.'},
+{category:'luggage',severity:'info',text_en:'Luggage storage in T1 and T2 arrivals — KRW 5,000-8,000/bag/24h ($4-6). Coin lockers — KRW 2,000-5,000. Very affordable.',text_ru:'Хранение в T1/T2 — 5,000–8,000 вон/сумка/24ч. Шкафчики — 2,000–5,000 вон.'},
+{category:'scams',severity:'info',text_en:'ICN is very safe. Almost no scams. Standard taxi pricing. Korea is one of the safest countries for travelers.',text_ru:'ICN очень безопасен. Корея — одна из безопаснейших стран.'},
+{category:'immigration',severity:'pro',text_en:'ICN: 10-20 min (fast). eGates for Korean and some nationalities (register on arrival). K-ETA required for visa-free travel (check in advance).',text_ru:'ICN: 10–20 минут. eGates для некоторых. K-ETA нужна.'},
+{category:'navigation',severity:'pro',text_en:'ICN has T1 and T2 connected by the free "Starline" train (15 min). T1 is massive but well-organized. Terminal 2 is newer and more spacious.',text_ru:'ICN: T1 и T2 — поезд Starline (15 мин). T2 — новее и просторнее.'},
+]},
+{code:'BKK',city:'Bangkok Suvarnabhumi',country:'Thailand',countryRu:'Таиланд',flag:'🇹🇭',terminals:1,difficulty:3,continent:'asia',tips:[
+{category:'transport',severity:'info',text_en:'Airport Rail Link to Phaya Thai: THB 45 ($1.30), 30 min. Taxi to Sukhumvit: THB 250-400 ($7-12) + THB 50 airport fee + tolls (~THB 80).',text_ru:'Airport Rail Link до Phaya Thai: 45 бат ($1.30), 30 мин. Такси: 250–400 бат.'},
+{category:'transport',severity:'warning',text_en:'BKK taxis notoriously scam tourists — they demand flat rate 2-3x meter price. Use "public taxi" stand at arrivals level, insist on meter. Grab/Taxi OK from parking.',text_ru:'Такси BKK просят в 2–3 раза больше счётчика. Настаивайте на счётчике.'},
+{category:'money',severity:'warning',text_en:'Currency exchange at BKK gives 8-10% markup. Use "SuperRich" ATMs in basement near Airport Rail Link (best rates). Exchange only what you need at airport.',text_ru:'Обменники — наценка 8–10%. SuperRich в подвале у поезда.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "Airport WiFi by AIS" — speed ~10 Mbps, requires phone number SMS or passport scan at kiosk. Valid for 2 hours.',text_ru:'WiFi — ~10 Мбит/с, нужен SMS или паспорт. 2 часа.'},
+{category:'charging',severity:'info',text_en:'BKK charging: gates D and E have USB ports at some seats. Charging stations near food court. Best: upper level near gate E. Limited overall.',text_ru:'Зарядки у D и E — USB. Ограниченно. Берите пауэрбанк.'},
+{category:'food',severity:'pro',text_en:'"Magic Food Point" in basement (before security) — real Thai food THB 40-60 ($1-2). Pad Thai THB 45. Best value in the airport. "Starbucks" for coffee.',text_ru:'Magic Food Point в подвале — настоящая тайская еда 40–60 бат. Пад Тай 45 бат.'},
+{category:'sleep',severity:'info',text_en:'BKK open 24h. Best spots: gate D side (quiet, padded benches, less crowded at night). "Boxtel" sleep pods — THB 300-500/hr. "Miracle Lounge" pay-to-enter.',text_ru:'BKK 24/7. D — тихо. Boxtel — 300–500 бат/ч.'},
+{category:'luggage',severity:'info',text_en:'Left Baggage at arrivals level (4th floor) — THB 100-150/bag/24h ($3-5). Very cheap. Lockers THB 100-200. Open 24h.',text_ru:'Left Baggage на 4 этаже — 100–150 бат/сумка/24ч. Очень дёшево.'},
+{category:'scams',severity:'warning',text_en:'BKK is famous for taxi scams — always insist on meter. "Tourist information" booths selling expensive tours. "Closed luggage storage" scam directing to fake service.',text_ru:'BKK печально известен такси-мошенниками. «Закрытое хранение» — фейк.'},
+{category:'immigration',severity:'info',text_en:'BKK: 20-45 min for non-Thai. Thailand requires TM6 form (now mostly digital). Have hotel address and return ticket ready. 30-day visa on arrival for many.',text_ru:'BKK: 20–45 минут. TM6 форма. 30 дней по прибытии для многих.'},
+{category:'navigation',severity:'info',text_en:'BKK is a single terminal with A, B, C, D, E, F, G concourses. Very large — walk from A to G takes 30+ min. Automated people mover connects center.',text_ru:'BKK — один терминал с зонами A–G. 30+ минут от A до G.'},
+]},
+{code:'DEL',city:'Delhi IGI',country:'India',countryRu:'Индия',flag:'🇮🇳',terminals:3,difficulty:4,continent:'asia',tips:[
+{category:'transport',severity:'warning',text_en:'Airport Express metro to New Delhi Station: INR 150 ($2), 20 min. Taxi to Connaught Place: INR 300-500 ($4-7) — use prepaid taxi booth inside arrivals.',text_ru:'Airport Express до New Delhi: 150 рупий ($2), 20 мин. Такси — предоплаченный киоск.'},
+{category:'transport',severity:'warning',text_en:'Beware: taxi touts inside arrivals claim prepaid booth is "closed" and offer expensive rides. Real prepaid booth is clearly marked. Uber/Ola from parking lot.',text_ru:'Зазывалы говорят, что киоск «закрыт» — не верьте. Uber/Ola с парковки.'},
+{category:'money',severity:'warning',text_en:'ATMs: SBI, HDFC, ICICI (INR 200-300 fee). Currency exchange 10-12% markup. Bring USD and exchange at city shops (better rates).',text_ru:'Банкоматы SBI, HDFC, ICICI (200–300 рупий). Обменники — наценка 10–12%.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "DEL WiFi" — speed ~8 Mbps, requires Indian phone number SMS. Foreign numbers may not work. OR passport scan at kiosk near info desk.',text_ru:'WiFi «DEL WiFi» — ~8 Мбит/с, нужен SMS или паспорт в киоске.'},
+{category:'charging',severity:'info',text_en:'T3 has USB ports at most gates (new). T1 and T2 older — fewer outlets. Best: T3 near gate 40-50 (new area). India uses Type C, D, M plugs.',text_ru:'T3 — USB у выходов (новый). T1/T2 — меньше. Индия — типы C, D, M.'},
+{category:'food',severity:'pro',text_en:'"Food court" in T3 — Indian meals INR 200-400 ($3-5). "Bikaji" — samosa INR 50. "Costa Coffee" — coffee INR 150. "Haldiram\'s" — Indian snacks INR 100.',text_ru:'Фуд-корт T3 — индийская еда 200–400 рупий. Haldiram\'s — закуски 100 рупий.'},
+{category:'sleep',severity:'info',text_en:'DEL open 24h. T3 near gate 38 (quiet, reclining chairs). T1 near gate 8 (padded benches). "Snooze" capsule hotel — INR 1,500 for 4h.',text_ru:'DEL 24/7. T3 у 38 (кресла). T1 у 8 (скамьи). Капсулы — 1,500 рупий за 4ч.'},
+{category:'luggage',severity:'info',text_en:'Left Baggage in T3 arrivals — INR 300-500/bag/24h ($4-7). T1 also has luggage storage. Lockers INR 200-400. Cash only.',text_ru:'Хранение в T3 — 300–500 рупий/сумка/24ч. T1 тоже.'},
+{category:'scams',severity:'warning',text_en:'DEL has many scams: "helpful" porters demanding INR 500, taxi drivers claiming prepaid booth closed, fake "police" checking for "fines". Be alert.',text_ru:'DEL — много мошенников. «Помощники» просят 500 рупий. Лже-полиция.'},
+{category:'immigration',severity:'warning',text_en:'DEL: 30-60 min. e-Visa for most nationalities (apply online before travel). Have printed e-Visa and return ticket ready. Keep immigration slip.',text_ru:'DEL: 30–60 минут. e-Visa нужна. Распечатайте и имейте обратный билет.'},
+{category:'navigation',severity:'info',text_en:'DEL has T3 (main international), T2 and T1 (domestic). T2+T3 connected by walkway (15 min). T1 is separate — free shuttle bus (20 min). Allow 2h for transfers.',text_ru:'DEL: T3 (международные), T2+T1 (внутренние). T1 — автобус (20 мин).'},
+]},
+{code:'PVG',city:'Shanghai Pudong',country:'China',countryRu:'Китай',flag:'🇨🇳',terminals:2,difficulty:4,continent:'asia',tips:[
+{category:'transport',severity:'info',text_en:'Maglev train to Longyang Road: CNY 50 ($7), 8 min (fastest). Metro Line 2 to People\'s Square: CNY 6 ($1), 50 min. Taxi to Bund: CNY 200-300.',text_ru:'Maglev до Longyang: 50 юаней ($7), 8 минут. Метро Линия 2: 6 юаней.'},
+{category:'transport',severity:'warning',text_en:'Taxi drivers at PVG often refuse short trips (<CNY 200 fare). Use Didi (Chinese Uber) app from parking garage. Metro is best option after 10pm.',text_ru:'Таксисты отказываются от коротких поездок. Didi или метро.'},
+{category:'money',severity:'warning',text_en:'ATMs: Bank of China, ICBC, China Construction Bank (CNY 20-30 fee). China is almost cashless — use Alipay or WeChat Pay. Exchange yuan at airport.',text_ru:'Банкоматы Bank of China. Китай почти без наличных — Alipay/WeChat.'},
+{category:'wifi',severity:'warning',text_en:'Free WiFi "Airport Pudong WiFi" — requires Chinese phone number SMS or passport scan. Foreign SIMs may not work. Rent pocket WiFi at arrivals (CNY 30/day).',text_ru:'WiFi — нужен SMS или паспорт. Аренда карманного WiFi — 30 юаней/день.'},
+{category:'charging',severity:'info',text_en:'PVG has USB ports at some gates in T1 and T2. Best: near gates 30-50 (newer area). China uses Type A and I plugs.',text_ru:'USB в некоторых зонах T1 и T2. Лучше у 30–50. Типы A и I.'},
+{category:'food',severity:'pro',text_en:'Food court in T2 — noodle soup CNY 35-50 ($5-7). "Dicos" (Chinese KFC) — chicken set CNY 30. 7-Eleven — snacks CNY 15. Avoid Western restaurants (expensive).',text_ru:'Фуд-корт T2 — суп с лапшой 35–50 юаней. Dicos — 30 юаней.'},
+{category:'sleep',severity:'info',text_en:'PVG open 24h. T1 near gate 10 (quiet, padded benches). T2 near gate 35 (sofas). "Captain\'s Lounge" pay-to-enter. Limited free options.',text_ru:'PVG 24/7. T1 у 10 (скамьи). T2 у 35 (диваны). Лаунж платный.'},
+{category:'luggage',severity:'info',text_en:'Luggage storage at T1 and T2 arrivals — CNY 30-50/bag/24h ($4-7). Very affordable. Lockers CNY 20-40. Payment by cash or Alipay.',text_ru:'Хранение в T1/T2 — 30–50 юаней/сумка/24ч. Шкафчики — 20–40 юаней.'},
+{category:'scams',severity:'warning',text_en:'PVG taxi scam: drivers claiming meter is "broken" then demanding flat rate 3x. Official taxi queue at exit. "Helpful" porters demanding CNY 100.',text_ru:'Таксисты говорят, что счётчик «сломан» и просят в 3 раза.'},
+{category:'immigration',severity:'warning',text_en:'PVG: 20-40 min. China requires visa for most nationalities. 144-hour TWOV (transit without visa) available for some. Fill out arrival card.',text_ru:'PVG: 20–40 минут. Нужна виза. 144-часовой транзит для некоторых.'},
+{category:'navigation',severity:'info',text_en:'PVG has T1 (some international) and T2 (most flights). Connected by walkway (10 min). Free shuttle train between terminals (every 5 min).',text_ru:'PVG: T1 и T2 соединены (10 мин). Бесплатный поезд.'},
+]},
+{code:'KUL',city:'Kuala Lumpur',country:'Malaysia',countryRu:'Малайзия',flag:'🇲🇾',terminals:2,difficulty:2,continent:'asia',tips:[
+{category:'transport',severity:'info',text_en:'KLIA Ekspres to KL Sentral: MYR 55 ($12), 28 min. KLIA Transit: MYR 55, 35 min (stops at intermediate stations). Bus to KL Sentral: MYR 15 ($3.50), 60 min.',text_ru:'KLIA Ekspres до KL Sentral: 55 ринггит ($12), 28 минут. Автобус: 15 ринггит.'},
+{category:'transport',severity:'info',text_en:'Grab (Southeast Asian Uber) works well from KLIA — cheaper than taxi. Pickup at arrivals level. About MYR 60-80 to downtown.',text_ru:'Grab работает хорошо — дешевле такси. MYR 60–80 до центра.'},
+{category:'money',severity:'info',text_en:'ATMs: Maybank, CIMB, Public Bank (MYR 10-12 fee). Currency exchange 5-7% markup. Malaysia is card-friendly but have MYR 100-200 cash.',text_ru:'Банкоматы Maybank, CIMB (10–12 ринггит). Малайзия — карты.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "KLIA Free WiFi" — speed ~15 Mbps, requires phone number SMS or passport scan at kiosk. Valid for 24h.',text_ru:'WiFi «KLIA Free WiFi» — ~15 Мбит/с, нужен SMS или паспорт.'},
+{category:'charging',severity:'info',text_en:'KLIA has USB ports at most gate seats in satellite building. klia2 has fewer. Best: KLIA main terminal near gate C-1 to C-10. Malaysia Type G.',text_ru:'USB в KLIA у выходов. klia2 — меньше. Тип G.'},
+{category:'food',severity:'pro',text_en:'Food court in KLIA — nasi lemak MYR 8-12 ($2-3). "OldTown White Coffee" — coffee MYR 6, toast MYR 5. "Pacific Coffee" — MYR 10.',text_ru:'Фуд-корт KLIA — наси лемак 8–12 ринггит. OldTown White Coffee — 6 ринггит.'},
+{category:'sleep',severity:'info',text_en:'KLIA open 24h. Satellite building near gate C-15 (quiet, reclining chairs). klia2 has "Tune Hotel" inside — MYR 80+ for 6h block.',text_ru:'KLIA 24/7. C-15 (кресла). Tune Hotel в klia2 — 80+ ринггит за 6ч.'},
+{category:'luggage',severity:'info',text_en:'Luggage storage in KLIA arrivals — MYR 15-20/bag/24h ($3-5). klia2 has lockers — MYR 10-15. Very affordable.',text_ru:'Хранение в KLIA — 15–20 ринггит/сумка/24ч. klia2 — шкафчики.'},
+{category:'scams',severity:'info',text_en:'KUL is generally safe. Taxi scams exist but Grab makes it easy to avoid. Watch for pickpockets in busy areas.',text_ru:'KUL безопасен. Такси-мошенники есть, но Grab решает.'},
+{category:'immigration',severity:'info',text_en:'KUL: 15-30 min. Malaysia has visa-free for many nationalities (up to 90 days). Fill out Malaysia Digital Arrival Card (MDAC) online before travel.',text_ru:'KUL: 15–30 минут. Безвизовый въезд для многих. MDAC онлайн.'},
+{category:'navigation',severity:'pro',text_en:'KLIA has main terminal and satellite building connected by automated train (3 min). klia2 is separate (free shuttle bus, 15 min). Clear signs.',text_ru:'KLIA — главный терминал + сателлит (поезд, 3 мин). klia2 — автобус.'},
+]},
+{code:'DPS',city:'Bali Ngurah Rai',country:'Indonesia',countryRu:'Индонезия',flag:'🇮🇩',terminals:2,difficulty:3,continent:'asia',tips:[
+{category:'transport',severity:'info',text_en:'Taxi to Kuta: IDR 150,000 ($10) — use official "Airport Taxi" booth inside arrivals. Blue Bird taxi trustable. Grab/Gojek from parking area.',text_ru:'Такси до Куты: 150,000 рупий ($10) — официальный киоск. Blue Bird надёжный.'},
+{category:'transport',severity:'warning',text_en:'Unofficial taxis outside arrivals charge 2-3x. Walk past them to the official booth. Grab/Gojek cannot pick up at terminal — must walk to parking lot.',text_ru:'Неофициальные такси в 2–3 раза дороже. Grab/Gojek — на парковке.'},
+{category:'money',severity:'info',text_en:'ATMs: BCA, Mandiri, BNI (IDR 50,000-75,000 fee). Currency exchange 10% markup — "VIP" exchange shops near airport. Use bank ATMs only.',text_ru:'Банкоматы BCA, Mandiri (50,000–75,000 рупий). Только банкоматы банков.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "Ngurah Rai WiFi" — speed ~5 Mbps, requires phone number or email. Valid for 1 hour. Not great for streaming. Better to buy local SIM.',text_ru:'WiFi «Ngurah Rai WiFi» — ~5 Мбит/с, 1 час. Купите местную SIM.'},
+{category:'charging',severity:'info',text_en:'DPS has limited charging. International terminal has USB near gates 1-3. Domestic terminal fewer. Best: food court area. Bring power bank.',text_ru:'DPS — ограниченные зарядки. Международный — USB у 1–3. Берите пауэрбанк.'},
+{category:'food',severity:'pro',text_en:'"Circle K" convenience store — mie goreng IDR 25,000 ($1.50). "Starbucks" — coffee IDR 55,000. Food court — nasi goreng IDR 40,000-60,000.',text_ru:'Circle K — ми горенг 25,000 рупий ($1.50). Фуд-корт — наси горенг 40,000.'},
+{category:'sleep',severity:'info',text_en:'DPS open 24h. International terminal near gate 4 (padded benches). Domestic terminal (quiet but no AC at night). No sleep pods. Hotels nearby from IDR 200,000.',text_ru:'DPS 24/7. Международный у 4 (скамьи). Капсул нет.'},
+{category:'luggage',severity:'info',text_en:'Left Baggage in international arrivals — IDR 30,000-50,000/bag/24h ($2-3). Domestic also available. Very cheap. Cash only.',text_ru:'Хранение в международном прилёте — 30,000–50,000 рупий/сумка/24ч.'},
+{category:'scams',severity:'warning',text_en:'Bali airport taxi mafia — official drivers charge high rates. Ignore touts. "Visa extension" scammers in arrivals targeting tourists. Exchange "helpers" shortchange.',text_ru:'Такси-мафия в аэропорту Бали. Игнорируйте зазывал.'},
+{category:'immigration',severity:'info',text_en:'DPS: 20-40 min. Indonesia has visa-free for many (now being reinstated) or visa on arrival (IDR 500,000, 30 days). Have cash for visa. Keep departure card.',text_ru:'DPS: 20–40 минут. Виза по прибытии (500,000 рупий, 30 дней).'},
+{category:'navigation',severity:'info',text_en:'DPS has international and domestic terminals connected by walkway (10 min). International terminal is new and modern. Domestic is older. Easy to navigate.',text_ru:'DPS: международный и внутренний — переход (10 мин).'},
+]},
+{code:'DXB',city:'Dubai International',country:'UAE',countryRu:'ОАЭ',flag:'🇦🇪',terminals:3,difficulty:3,continent:'middle-east',tips:[
+{category:'transport',severity:'info',text_en:'Metro to Burj Khalifa/Dubai Mall: AED 8 ($2.20), 25 min. Red Line from T1/T3. Taxi to Dubai Marina: AED 50-70 ($14-19). Uber/Careem similar.',text_ru:'Метро до Burj Khalifa: 8 дирхамов ($2.20), 25 минут. Такси до Марины: 50–70 дирхамов.'},
+{category:'transport',severity:'warning',text_en:'Airport Metro station closes at midnight (Sun-Wed) or 1am (Thu-Sat). After that, only taxis available (20% surcharge 10pm-6am).',text_ru:'Метро закрывается в полночь. После — только такси (надбавка 20%).'},
+{category:'money',severity:'info',text_en:'ATMs: Emirates NBD, ADCB, HSBC (AED 5-10 fee). Currency exchange 5-7% markup. UAE is very card-friendly. "Al Ansari Exchange" has best rates in airport.',text_ru:'Банкоматы Emirates NBD, ADCB (5–10 дирхамов). ОАЭ — карты.'},
+{category:'wifi',severity:'pro',text_en:'Free WiFi "DXB Free WiFi" — speed ~30 Mbps, no login required, unlimited. Excellent in all terminals. One of the best airport WiFis globally.',text_ru:'WiFi «DXB Free WiFi» — ~30 Мбит/с, без регистрации. Отличный.'},
+{category:'charging',severity:'pro',text_en:'USB and outlets at virtually every seat in T1 and T3. T2 has fewer. Wireless charging in lounges. Dubai uses Type G plugs.',text_ru:'USB и розетки почти везде в T1/T3. Беспроводная зарядка. Тип G.'},
+{category:'food',severity:'pro',text_en:'Food court in T3 — shawarma AED 15-20 ($4-5). "Jollibee" — chicken joy AED 18. "Costa Coffee" — AED 18. "Waitrose" supermarket — sandwiches AED 20.',text_ru:'Фуд-корт T3 — шаурма 15–20 дирхамов. Jollibee — 18 дирхамов.'},
+      {category:'sleep',severity:'info',text_en:"DXB sleep: T3 near gate B (quiet zone, reclining chairs). T1 near gate C (sofas). \"Sleep 'n Fly\" pods in T3 — AED 80 for 2h. \"Dubai International Hotel\" inside — from AED 300.",text_ru:'DXB: T3 у B (кресла), T1 у C (диваны). Капсулы — 80 дирхамов за 2ч.'},
+{category:'luggage',severity:'info',text_en:'Luggage storage in T1 and T3 arrivals — AED 30-40/bag/24h ($8-11). Lockers AED 20-35. Open 24h. Card payment.',text_ru:'Хранение в T1/T3 — 30–40 дирхамов/сумка/24ч. Шкафчики.'},
+{category:'scams',severity:'info',text_en:'DXB is very safe with strict laws. Taxi drivers generally honest — they use meters. Some overcharging for long-haul rides. Dubai has zero tolerance for scams.',text_ru:'DXB безопасен. Строгие законы. Такси честные.'},
+{category:'immigration',severity:'info',text_en:'DXB: 15-30 min. eGates for UAE residents and some nationalities. Many nationalities get 30/90-day visa on arrival. Have hotel address ready.',text_ru:'DXB: 15–30 минут. eGates для некоторых. 30/90 дней по прибытии.'},
+{category:'navigation',severity:'pro',text_en:'DXB has T1, T2, T3. T1 and T3 connected by walkway (15 min) and shuttle train. T2 separate (free shuttle bus, 10 min). Clear signs. Shuttle train runs 24h.',text_ru:'DXB: T1/T3 — переход (15 мин). T2 — автобус (10 мин).'},
+]},
+{code:'DOH',city:'Doha Hamad',country:'Qatar',countryRu:'Катар',flag:'🇶🇦',terminals:1,difficulty:2,continent:'middle-east',tips:[
+{category:'transport',severity:'info',text_en:'Metro to Doha city: QAR 2 ($0.55), 20 min (Red Line from T1). Taxi to Souq Waqif: QAR 35-50 ($10-14). Uber/Karwa cheaper.',text_ru:'Метро до Дохи: 2 риала ($0.55), 20 минут. Такси: 35–50 риалов.'},
+{category:'transport',severity:'pro',text_en:'Doha Metro is modern, clean, cheap. Connect at Ooredoo station for Gold Line. Single trip max QAR 2. Journey to West Bay ~25 min.',text_ru:'Метро Дохи современное и чистое. До 2 риалов за поездку.'},
+{category:'money',severity:'info',text_en:'ATMs: QNB, Qatar Islamic Bank (QAR 5-10 fee). Currency exchange 5% markup. Qatar is card-friendly. QNB has best rates.',text_ru:'Банкоматы QNB (5–10 риалов). Катар — карты везде.'},
+{category:'wifi',severity:'pro',text_en:'Free WiFi "HIA Free WiFi" — speed ~40 Mbps, no login required, unlimited. Excellent throughout. One of the fastest airport WiFis.',text_ru:'WiFi «HIA Free WiFi» — ~40 Мбит/с, без регистрации.'},
+{category:'charging',severity:'pro',text_en:'USB and outlets at every seat (the airport is relatively new). Wireless charging in lounges. Qatar uses Type G plugs (same as UK).',text_ru:'USB и розетки у каждого кресла. Беспроводная зарядка. Тип G.'},
+{category:'food',severity:'pro',text_en:'"Spar" supermarket — sandwiches QAR 15-20 ($4-5). "Shakespeare and Co" — breakfast QAR 40. "Harrods Tea Room" — tea QAR 25. Food court has Indian, Arabic options.',text_ru:'Spar — сэндвичи 15–20 риалов. Shakespeare and Co — завтрак 40 риалов.'},
+      {category:'sleep',severity:'pro',text_en:"DOH is excellent for sleeping. \"Sleep 'n Fly\" pods in C concourse — QAR 80 for 2h. Quiet areas near gate C (reclining chairs). \"Al Mourjan\" lounge — free for J/F.",text_ru:'DOH отличен для сна. Капсулы — 80 риалов за 2ч. Тихие зоны у C
+{category:'luggage',severity:'info',text_en:'Luggage storage near arrivals — QAR 25-35/bag/24h ($7-10). Lockers QAR 15-25. Open 24h. Card payment.',text_ru:'Хранение у прилёта — 25–35 риалов/сумка/24ч. Шкафчики.'},
+{category:'scams',severity:'info',text_en:'DOH is very safe, minimal scams. Taxi drivers use meters or fixed rates posted. Qatar has strict laws against scams.',text_ru:'DOH безопасен. Минимум мошенников.'},
+{category:'immigration',severity:'info',text_en:'DOH: 10-20 min. eGates for GCC residents and some nationalities. Many get 30-day visa on arrival. Have hotel booking printed.',text_ru:'DOH: 10–20 минут. eGates для некоторых. 30 дней по прибытии.'},
+{category:'navigation',severity:'pro',text_en:'DOH is a single terminal (one of the largest buildings in the world). Organized into A, B, C, D, E concourses. Moving walkways. Clear signs.',text_ru:'DOH — один огромный терминал. Траволаторы. Понятные указатели.'},
+]},
+{code:'AUH',city:'Abu Dhabi',country:'UAE',countryRu:'ОАЭ',flag:'🇦🇪',terminals:3,difficulty:2,continent:'middle-east',tips:[
+{category:'transport',severity:'info',text_en:'Bus A1 to city: AED 4 ($1.10), 30 min. Taxi to Corniche: AED 50-70 ($14-19). Uber/Careem available. New metro coming (2025+).',text_ru:'Автобус A1 до города: 4 дирхама ($1.10). Такси до Корниш: 50–70 дирхамов.'},
+{category:'transport',severity:'info',text_en:'Abu Dhabi airport is spread out. Free shuttle bus between terminals runs every 20 min. "Al Ghubaiba" bus station connections via A1 bus.',text_ru:'Аэропорт Абу-Даби разбросан. Бесплатный автобус между терминалами.'},
+{category:'money',severity:'info',text_en:'ATMs: ADIB, Abu Dhabi Islamic Bank, HSBC (AED 5-10 fee). Currency exchange 6% markup. UAE is very card-friendly.',text_ru:'Банкоматы ADIB, Abu Dhabi Islamic Bank (5–10 дирхамов).'},
+{category:'wifi',severity:'pro',text_en:'Free WiFi "AUH Free WiFi" — speed ~30 Mbps, no login required (or email), unlimited. Good throughout. New terminal A has best coverage.',text_ru:'WiFi «AUH Free WiFi» — ~30 Мбит/с, без регистрации.'},
+{category:'charging',severity:'pro',text_en:'New terminal A has USB and outlets at every seat. Older terminals have fewer. Best: terminal A near gates C-E. Wireless charging available.',text_ru:'Новый терминал A — USB везде. Старые — меньше.'},
+{category:'food',severity:'pro',text_en:'"Pret a Manger" in new terminal A — sandwiches AED 25-30 ($7-8). "Jones the Grocer" — AED 40. "Costa Coffee" — AED 18. Avoid sit-down restaurants (AED 60+).',text_ru:'Pret a Manger — сэндвичи 25–30 дирхамов. Costa — 18 дирхамов.'},
+{category:'sleep',severity:'info',text_en:'AUH sleep: new terminal A has quiet zones with reclining chairs near gate A. "Airport Hotel" inside — from AED 250. Older terminals less comfortable.',text_ru:'AUH: новый терминал A — зоны отдыха. Отель внутри — от 250 дирхамов.'},
+{category:'luggage',severity:'info',text_en:'Luggage storage at T1/T3 arrivals — AED 25-35/bag/24h ($7-10). New terminal has lockers. Card payment.',text_ru:'Хранение в T1/T3 — 25–35 дирхамов/сумка/24ч.'},
+{category:'scams',severity:'info',text_en:'AUH is safe, minimal taxi scams (regulated). Some overcharging for long distances to Dubai (pre-negotiate).',text_ru:'AUH безопасен. Такси регулируются.'},
+{category:'immigration',severity:'pro',text_en:'AUH: 10-20 min. eGates for residents. Many nationalities get 30/90-day visa on arrival. New terminal A has efficient immigration.',text_ru:'AUH: 10–20 минут. eGates. Многие — 30/90 дней по прибытии.'},
+{category:'navigation',severity:'info',text_en:'AUH has T1, T2, T3 (older) and new Terminal A (midfield). Free shuttle bus between them (15 min). New terminal A handles most flights now.',text_ru:'AUH: старые T1–T3 + новый A. Бесплатный автобус.'},
+]},
+{code:'RUH',city:'Riyadh King Khalid',country:'Saudi Arabia',countryRu:'Саудовская Аравия',flag:'🇸🇦',terminals:5,difficulty:4,continent:'middle-east',tips:[
+{category:'transport',severity:'info',text_en:'Taxi to downtown Riyadh: SAR 50-80 ($13-21). Uber/Careem cheaper. No metro yet (opening 2025+). SAPTCO bus to city: SAR 15 ($4).',text_ru:'Такси до центра: 50–80 саудовских риалов ($13–21). Uber/Careem дешевле.'},
+{category:'transport',severity:'warning',text_en:'Uber/Careem pickup at designated area at departures level (follow app). Taxi drivers at arrivals charge 3x meter. Use booth or app.',text_ru:'Uber/Careem забирают на этаже вылета. Такси у прилёта в 3 раза дороже.'},
+{category:'money',severity:'info',text_en:'ATMs: Al Rajhi, SABB, Riyad Bank (SAR 10-20 fee). Currency exchange 6% markup. Saudi Arabia card-friendly but have SAR 200 cash.',text_ru:'Банкоматы Al Rajhi, SABB (10–20 риалов). Саудовская Аравия — карты.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "RUH Free WiFi" — speed ~10 Mbps, requires mobile number or passport scan. Works in all terminals. Lounge WiFi faster.',text_ru:'WiFi «RUH Free WiFi» — ~10 Мбит/с, нужен номер или паспорт.'},
+{category:'charging',severity:'info',text_en:'RUH charging: T3-T5 (newer) have USB at seats. T1-T2 (older) limited. Best: T5 near gates 30-40. Saudi Arabia uses Type G plugs.',text_ru:'T3–T5 (новые) — USB. T1–T2 (старые) — ограничено. Тип G.'},
+{category:'food',severity:'info',text_en:'Food court in T5 — shawarma SAR 15-20 ($4-5), kabsa SAR 25. "Herfy" (local burger chain) — combo SAR 18. "Starbucks" — SAR 16.',text_ru:'Фуд-корт T5 — шаурма 15–20 риалов. Herfy — комбо 18 риалов.'},
+{category:'sleep',severity:'info',text_en:'RUH open 24h. T5 near gate 35 (quiet, padded benches). T3 near gate 20 (sofas). "Al Majd" lounge pay-to-enter. No sleep pods.',text_ru:'RUH 24/7. T5 у 35 (скамьи). T3 у 20 (диваны). Капсул нет.'},
+{category:'luggage',severity:'info',text_en:'Luggage storage in T5 arrivals — SAR 25-35/bag/24h ($7-10). Other terminals also have. Lockers SAR 15-25.',text_ru:'Хранение в T5 — 25–35 риалов/сумка/24ч. Шкафчики.'},
+{category:'scams',severity:'warning',text_en:'Taxi scams common — drivers refusing meter, demanding flat rate. Use Uber/Careem or official taxi booth. "Official" helpers demanding SAR 50.',text_ru:'Такси отказываются от счётчика. Используйте Uber.'},
+{category:'immigration',severity:'info',text_en:'RUH: 20-40 min. eGates for GCC residents. Saudi Arabia now offers tourist e-visa (pre-arrangement required). Visa on arrival for some nationals.',text_ru:'RUH: 20–40 минут. Туристическая e-visa (заранее).'},
+{category:'navigation',severity:'info',text_en:'RUH has 5 terminals: T1-T2 (international, older), T3-T4 (domestic), T5 (new, mixed). Free shuttle bus between all. Allow 1h for transfers.',text_ru:'RUH: 5 терминалов. Бесплатный автобус между всеми.'},
+]},
+{code:'TLV',city:'Tel Aviv Ben Gurion',country:'Israel',countryRu:'Израиль',flag:'🇮🇱',terminals:2,difficulty:3,continent:'middle-east',tips:[
+{category:'transport',severity:'info',text_en:'Train to Tel Aviv Savidor: ILS 18 ($5), 20 min, runs every 30 min. Taxi to Tel Aviv: ILS 120-160 ($33-44). Bus 485 to Tel Aviv: ILS 12.',text_ru:'Поезд до Тель-Авива: 18 шекелей ($5), 20 минут. Такси: 120–160 шекелей.'},
+{category:'transport',severity:'warning',text_en:'Train may stop during security situations (check ahead). Taxis from TLV are expensive — use Gett or Yango app for cheaper rates.',text_ru:'Поезд может не ходить при угрозах. Такси дорогие — используйте Gett.'},
+{category:'money',severity:'info',text_en:'ATMs: Bank Hapoalim, Bank Leumi, Discount (ILS 10-15 fee). Currency exchange 8% markup. Israel is very card-friendly — contactless everywhere.',text_ru:'Банкоматы Bank Hapoalim, Bank Leumi (10–15 шекелей). Израиль — карты.'},
+{category:'wifi',severity:'pro',text_en:'Free WiFi "Ben Gurion WiFi" — speed ~30 Mbps, no login required, unlimited. Excellent throughout. One of the best airport WiFis.',text_ru:'WiFi «Ben Gurion WiFi» — ~30 Мбит/с, без регистрации.'},
+{category:'charging',severity:'info',text_en:'TLV has USB at most seats in T3. T1 (domestic) has fewer. Charging stations near gates C and D. Israel uses Type C and H plugs.',text_ru:'USB в T3 у большинства кресел. T1 — меньше. Типы C и H.'},
+{category:'food',severity:'pro',text_en:'"Aroma" in T3 — sandwich ILS 25 ($7), coffee ILS 12. "Cafe Cafe" — breakfast ILS 40. "McDonald\'s" — ILS 40. "Greg Cafe" — pastries ILS 15.',text_ru:'Aroma — сэндвич 25 шекелей. Greg Cafe — выпечка 15 шекелей.'},
+{category:'sleep',severity:'info',text_en:'TLV not great for sleeping (security cleans overnight). T3 near gate C (some reclining chairs). "Dan Lounge" pay-to-enter (ILS 120, includes shower).',text_ru:'TLV не лучший для сна (уборка ночью). T3 у C — кресла.'},
+{category:'luggage',severity:'info',text_en:'Luggage storage in T3 arrivals — ILS 35-50/bag/24h ($10-14). T1 also has. Lockers ILS 25-40. Card payment available.',text_ru:'Хранение в T3 — 35–50 шекелей/сумка/24ч.'},
+{category:'scams',severity:'info',text_en:'TLV is very safe, very few scams. Airport security is extremely thorough — allow 3h before international flights.',text_ru:'TLV безопасен. Досмотр очень тщательный — будьте за 3 часа.'},
+{category:'immigration',severity:'info',text_en:'TLV: 10-30 min (security check may take longer than immigration). Most get 90-day visa on arrival. Expect detailed questioning on entry and exit.',text_ru:'TLV: 10–30 минут. 90 дней по прибытии. Подробные вопросы.'},
+{category:'navigation',severity:'info',text_en:'TLV has T3 (international) and T1 (domestic + some low-cost). Connected by free shuttle bus (10 min). Also walkway (20 min).',text_ru:'TLV: T3 (международные) и T1 (внутренние). Автобус (10 мин).'},
+]},
+{code:'SYD',city:'Sydney',country:'Australia',countryRu:'Австралия',flag:'🇦🇺',terminals:3,difficulty:3,continent:'africa-oceania',tips:[
+{category:'transport',severity:'info',text_en:'Train to Sydney Central: AUD 18-22 ($12-14), 15-20 min. Airport Link train runs every 10 min. Taxi to CBD: AUD 45-60 ($30-40) flat rate.',text_ru:'Поезд до Sydney Central: 18–22 австралийских доллара ($12–14), 15–20 мин. Такси: 45–60 австралийских долларов.'},
+{category:'transport',severity:'info',text_en:'Sydney Airport is connected by Airport Link with a "station access fee" (AUD 13.30 added to ticket). Bus to Kingsford (350) much cheaper (AUD 4).',text_ru:'Airport Link — доплата AUD 13.30 за доступ к станции. Автобус 350 — AUD 4.'},
+{category:'money',severity:'info',text_en:'ATMs: Commonwealth, Westpac, NAB (AUD 2-4 fee). Currency exchange 7% markup. Australia is very card-friendly. CommBank ATMs lowest fees.',text_ru:'Банкоматы Commonwealth, Westpac (2–4 AUD). Австралия — карты.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "SYD Free WiFi" — speed ~15 Mbps, requires email or phone registration. Valid for 60 min, then re-login. Works in all terminals.',text_ru:'WiFi «SYD Free WiFi» — ~15 Мбит/с, 60 минут.'},
+{category:'charging',severity:'info',text_en:'SYD has USB at most gate seats (T2/T3 best). T1 (international) has charging counters near gates 50-60. Australia uses Type I plugs.',text_ru:'USB в T2/T3. T1 — стойки у 50–60. Австралия — тип I.'},
+{category:'food',severity:'pro',text_en:'"Hungry Jack\'s" — burger AUD 8-10 ($5-7). "Boost Juice" — smoothie AUD 7. "Food court" in T1/T2 — sandwiches from AUD 10. "WHSmith" meal deal AUD 8.',text_ru:'Hungry Jack\'s — бургер 8–10 AUD. Boost — смузи 7 AUD.'},
+{category:'sleep',severity:'info',text_en:'SYD sleeping: T1 near gate 60 (quiet, reclining chairs). T2 near gate 30 (padded benches). "Rydges Hotel" at T3 — from AUD 180. "Sleep Pods" in T1.',text_ru:'SYD: T1 у 60 (кресла). T2 у 30 (скамьи). Rydges — от 180 AUD.'},
+{category:'luggage',severity:'info',text_en:'Luggage storage in T1 arrivals — AUD 15-20/bag/24h ($10-13). T2 and T3 have lockers — AUD 10-15. Card accepted.',text_ru:'Хранение в T1 — 15–20 AUD/сумка/24ч. T2/T3 — шкафчики.'},
+{category:'scams',severity:'info',text_en:'SYD is very safe. Taxi drivers honest (metered). Some overcharging for airport pickups — use ride-share apps for certainty.',text_ru:'SYD безопасен. Такси честные.'},
+{category:'immigration',severity:'info',text_en:'SYD: 20-40 min. eGates for Australian and NZ citizens. ETA/visa required for most nationalities (applied online). Have SmartGate ready.',text_ru:'SYD: 20–40 минут. Нужна ETA/виза для большинства.'},
+{category:'navigation',severity:'info',text_en:'SYD has T1 (international), T2 (domestic), T3 (Qantas domestic). T2+T3 connected by walkway (10 min). T1 separate — free shuttle bus (15 min) or train.',text_ru:'SYD: T1 (международные), T2+T3 (внутренние). T1 — автобус (15 мин).'},
+]},
+{code:'MEL',city:'Melbourne',country:'Australia',countryRu:'Австралия',flag:'🇦🇺',terminals:4,difficulty:3,continent:'africa-oceania',tips:[
+{category:'transport',severity:'info',text_en:'SkyBus to Southern Cross Station: AUD 20 ($13), 20 min, every 10 min. Taxi to CBD: AUD 55-75 ($35-50). Uber ~AUD 50.',text_ru:'SkyBus до Southern Cross: 20 AUD ($13), 20 минут. Такси: 55–75 AUD.'},
+{category:'transport',severity:'info',text_en:'SkyBus from T4 (budget) is AUD 20 same as others. Skip the "Premium" skybus — regular is fine. MST bus to regional Victoria from airport.',text_ru:'SkyBus от T4 — 20 AUD. Не берите Premium.'},
+{category:'money',severity:'info',text_en:'ATMs: NAB, Commonwealth, ANZ (AUD 2-4 fee). Currency exchange 7% markup. Australia is very card-friendly — contactless everywhere.',text_ru:'Банкоматы NAB, Commonwealth (2–4 AUD). Австралия — карты.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "MEL Free WiFi" — speed ~12 Mbps, requires email. Valid for 60 min. T2 and T4 have best connectivity.',text_ru:'WiFi «MEL Free WiFi» — ~12 Мбит/с, 60 минут. T2 и T4 — лучше.'},
+{category:'charging',severity:'info',text_en:'MEL has USB at most gates in T2 (international) and T4 (new). T1 and T3 older — fewer outlets. Best: T2 near gate 10-20 area.',text_ru:'USB в T2 и T4. T1/T3 — меньше. T2 у 10–20.'},
+{category:'food',severity:'pro',text_en:'"Grill\'d" in T2 — burger AUD 12 ($8). "Sushi Sushi" — rolls AUD 8. "Boost Juice" — AUD 7. "Liquorland" convenience store. Avoid T1 food court (overpriced).',text_ru:'Grill\'d — бургер 12 AUD. Sushi Sushi — 8 AUD.'},
+{category:'sleep',severity:'info',text_en:'MEL sleeping: T2 near gate 15 (quiet, reclining chairs). T4 near gate 10 (newer, comfortable). No sleep pods. "ParkRoyal" hotel at T2 — from AUD 200.',text_ru:'MEL: T2 у 15 (кресла). T4 у 10 (новые). ParkRoyal — от 200 AUD.'},
+{category:'luggage',severity:'info',text_en:'Luggage storage in T2 arrivals — AUD 15-20/bag/24h ($10-13). T4 lockers — AUD 10-15. Card accepted.',text_ru:'Хранение в T2 — 15–20 AUD/сумка/24ч. T4 — шкафчики.'},
+{category:'scams',severity:'info',text_en:'MEL is safe. Taxi scams rare — meters used. Some SkyBus ticket touts at arrivals (just buy at machine).',text_ru:'MEL безопасен. Такси по счётчику.'},
+{category:'immigration',severity:'info',text_en:'MEL: 20-40 min. eGates for Australian/NZ. ETA required for most. Melbourne is a major hub — lines can be long peak hours (6-9am, 5-8pm).',text_ru:'MEL: 20–40 минут. Нужна ETA. Очереди в часы пик.'},
+{category:'navigation',severity:'info',text_en:'MEL has T1 (Qantas), T2 (international), T3 (Virgin/domestic), T4 (budget). T1/T2/T3 connected by walkways. T4 separate (5 min walk).',text_ru:'MEL: 4 терминала. T1–T3 соединены. T4 — 5 минут.'},
+]},
+{code:'JNB',city:'Johannesburg OR Tambo',country:'South Africa',countryRu:'ЮАР',flag:'🇿🇦',terminals:2,difficulty:4,continent:'africa-oceania',tips:[
+{category:'transport',severity:'warning',text_en:'Gautrain to Sandton: ZAR 180 ($10), 15 min. Safe, fast, recommended. Taxi to Sandton: ZAR 300-450 ($17-25) — use Uber Bolt for safety.',text_ru:'Gautrain до Sandton: 180 рандов ($10), 15 минут. Безопасный. Такси — Uber/Bolt.'},
+{category:'transport',severity:'warning',text_en:'DO NOT take unofficial taxis from JNB — safety risk. Use Gautrain or Uber/Bolt (pickup at designated area). The minibus taxis are NOT for tourists.',text_ru:'НЕ берите неофициальные такси — опасно. Gautrain или Uber.'},
+{category:'money',severity:'info',text_en:'ATMs: ABSA, Standard Bank, Nedbank (ZAR 20-30 fee). Currency exchange 10% markup. South Africa is card-friendly but have ZAR 500 cash.',text_ru:'Банкоматы ABSA, Standard Bank (20–30 рандов). ЮАР — карты.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "OR Tambo WiFi" — speed ~8 Mbps, requires mobile number or passport scan. Valid 1 hour. Lounge WiFi better.',text_ru:'WiFi «OR Tambo WiFi» — ~8 Мбит/с, 1 час.'},
+{category:'charging',severity:'info',text_en:'JNB has USB at some gates in T-A (international). T-B (domestic) fewer. Best: food court area — multiple outlets. South Africa Type C, D, M, N.',text_ru:'USB в T-A. T-B — меньше. Фуд-корт — розетки.'},
+{category:'food',severity:'pro',text_en:'"Food court" in T-A — bunny chow ZAR 60 ($3.50). "Wimpy" — burger ZAR 60. "Nando\'s" — chicken ZAR 80. "Mugg & Bean" — coffee ZAR 30.',text_ru:'Фуд-корт T-A — банни чау 60 рандов. Nando\'s — 80 рандов.'},
+{category:'sleep',severity:'info',text_en:'JNB sleep: T-A near gate 9 (quiet, padded benches). T-B near gate 1 (sofas). "City Lodge" hotel inside — from ZAR 800. "Shuttle Sleep" pods — ZAR 200 for 3h.',text_ru:'JNB: T-A у 9 (скамьи), T-B у 1 (диваны). Капсулы — 200 рандов за 3ч.'},
+{category:'luggage',severity:'info',text_en:'Luggage storage in T-A arrivals — ZAR 50-80/bag/24h ($3-5). T-B also available. Very cheap. Lockers ZAR 40-60.',text_ru:'Хранение в T-A — 50–80 рандов/сумка/24ч. Очень дёшево.'},
+{category:'scams',severity:'warning',text_en:'JNB is known for baggage theft — lock your luggage. Unofficial taxi drivers target tourists. "Helpful" porters demanding ZAR 100. Be alert.',text_ru:'JNB — кражи багажа. Запирайте чемоданы. Неофициальные такси.'},
+{category:'immigration',severity:'info',text_en:'JNB: 20-45 min. Many nationalities get 90-day visa-free entry. Have proof of onward travel and accommodation ready.',text_ru:'JNB: 20–45 минут. 90 дней для многих. Обратный билет нужен.'},
+{category:'navigation',severity:'info',text_en:'JNB has T-A (international) and T-B (domestic) connected by walkway (10 min) and free shuttle. Central terminal building has shops and restaurants.',text_ru:'JNB: T-A (международные) и T-B (внутренние). Переход (10 мин).'},
+]},
+{code:'CAI',city:'Cairo International',country:'Egypt',countryRu:'Египет',flag:'🇪🇬',terminals:3,difficulty:4,continent:'africa-oceania',tips:[
+{category:'transport',severity:'warning',text_en:'Taxi to Tahrir Square: EGP 150-250 ($5-8) — use Uber or Careem from parking area. Airport bus to downtown: EGP 15 (unreliable).',text_ru:'Такси до Тахрира: 150–250 египетских фунтов ($5–8) — Uber/Careem. Автобус: 15 фунтов.'},
+{category:'transport',severity:'warning',text_en:'DO NOT take white taxis inside airport — they charge 5x. Walk to the parking lot and use Uber/Careem for fair prices and safety.',text_ru:'НЕ берите белые такси — в 5 раз дороже. Uber с парковки.'},
+{category:'money',severity:'warning',text_en:'ATMs: Banque Misr, NBE, CIB (EGP 20-30 fee). Currency exchange 10-12% markup. Egypt is cash-dependent — have EGP 500-1000 in small bills.',text_ru:'Банкоматы Banque Misr, NBE (20–30 фунтов). Египет — наличные.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "CAI Free WiFi" — speed ~5 Mbps, requires phone number or passport scan. Not reliable. Better to buy "Orange" SIM at arrivals (EGP 150 with data).',text_ru:'WiFi «CAI Free WiFi» — ~5 Мбит/с. Купите SIM Orange (150 фунтов).'},
+{category:'charging',severity:'info',text_en:'CAI charging limited. T3 (new) has USB at some gates. T1 and T2 older — few outlets. Best: T3 food court area. Bring power bank.',text_ru:'Зарядок мало. T3 (новый) — USB. T1/T2 — почти нет. Берите пауэрбанк.'},
+{category:'food',severity:'pro',text_en:'"Cilantro" cafe in T3 — coffee EGP 40 ($1.30), sandwich EGP 60. "Pizza Hut" — EGP 80. "McDonald\'s" — EGP 70. Avoid T1 restaurants.',text_ru:'Cilantro — кофе 40 фунтов ($1.30). McDonald\'s — 70 фунтов.'},
+{category:'sleep',severity:'info',text_en:'CAI sleep: T3 near gate 8 (quiet, padded benches). T1 near gate 2 (limited). "Le Meridien" hotel connected to T3 — from $120. No sleep pods.',text_ru:'CAI: T3 у 8 (скамьи). T1 у 2 (ограничено). Le Meridien — от $120.'},
+{category:'luggage',severity:'info',text_en:'Luggage storage in T3 arrivals — EGP 50-80/bag/24h ($2-3). T1 and T2 also have. Very cheap. Cash only.',text_ru:'Хранение в T3 — 50–80 фунтов/сумка/24ч. Очень дёшево.'},
+{category:'scams',severity:'warning',text_en:'CAI is notorious for:"helpful" porters demanding EGP 200, taxi drivers claiming Uber not allowed, fake "customs" officials asking for "fines".',text_ru:'CAI: «помощники» просят 200 фунтов. Лже-таможенники штрафуют.'},
+{category:'immigration',severity:'info',text_en:'CAI: 20-45 min. Egypt requires visa for most (US citizens get visa on arrival — $25 USD cash). Have cash for visa. Fill out arrival card.',text_ru:'CAI: 20–45 минут. Виза для большинства ($25 наличными).'},
+{category:'navigation',severity:'info',text_en:'CAI has T1 (old, some international), T2 (charter), T3 (new, main international). Free shuttle bus between terminals (15 min). T3 is modern.',text_ru:'CAI: T1 (старый), T2 (чартер), T3 (новый). Бесплатный автобус.'},
+]},
+{code:'CMN',city:'Casablanca Mohammed V',country:'Morocco',countryRu:'Марокко',flag:'🇲🇦',terminals:2,difficulty:3,continent:'africa-oceania',tips:[
+{category:'transport',severity:'info',text_en:'Train to Casa Voyageurs: MAD 60 ($6), 30 min, runs hourly. ONCF connects to Rabat/Marrakech. Taxi to Casa center: MAD 150-250 ($15-25) — use petite taxi.',text_ru:'Поезд до Casa Voyageurs: 60 марокканских дирхамов ($6), 30 минут. Такси: 150–250 дирхамов.'},
+{category:'transport',severity:'warning',text_en:'Avoid "grand taxi" (old Mercedes) — they charge 3x and share with others. Use "petite taxi" (red) from official stand. Uber not available in Casablanca airport.',text_ru:'Избегайте grand taxi (старые Mercedes) — в 3 раза дороже. Petite taxi (красные).'},
+{category:'money',severity:'info',text_en:'ATMs: BMCE, Attijariwafa, Banque Populaire (MAD 10-20 fee). Currency exchange 8% markup. Morocco is cash-based — have MAD 500-1000 cash.',text_ru:'Банкоматы BMCE, Attijariwafa (10–20 дирхамов). Марокко — наличные.'},
+{category:'wifi',severity:'info',text_en:'Free WiFi "CMN Free WiFi" — speed ~6 Mbps, requires phone number or passport scan. Works in T1 and T2. Lounge WiFi faster.',text_ru:'WiFi «CMN Free WiFi» — ~6 Мбит/с, нужен номер/паспорт.'},
+{category:'charging',severity:'info',text_en:'CMN charging: T1 has USB at some gates (limited). T2 (newer) has better coverage. Best: T1 food court area. Bring power bank.',text_ru:'CMN: T1 — USB ограниченно. T2 — лучше. Берите пауэрбанк.'},
+{category:'food',severity:'pro',text_en:'"Food court" in T1 — couscous MAD 40-60 ($4-6). "McDonald\'s" — MAD 50. "Café" — mint tea MAD 10, coffee MAD 12. "Boulangerie" — croissant MAD 8.',text_ru:'Фуд-корт T1 — кускус 40–60 дирхамов. Мятный чай 10 дирхамов.'},
+{category:'sleep',severity:'info',text_en:'CMN sleep: T1 near gate 6 (quiet, padded benches). T2 near gate 10 (sofas). "Relais Airport" hotel near T1 — from MAD 500. No sleep pods.',text_ru:'CMN: T1 у 6 (скамьи), T2 у 10 (диваны). Relais Airport — от 500 дирхамов.'},
+{category:'luggage',severity:'info',text_en:'Luggage storage in T1 arrivals — MAD 30-50/bag/24h ($3-5). T2 lockers — MAD 20-40. Very cheap. Cash only.',text_ru:'Хранение в T1 — 30–50 дирхамов/сумка/24ч. Очень дёшево.'},
+{category:'scams',severity:'warning',text_en:'Common CMN scam: "official" porters demanding MAD 100 for 50m carry. Taxi drivers claiming train "not running". Unofficial currency changers shortchange.',text_ru:'«Носильщики» просят 100 дирхамов. Таксисты говорят, что поезд не ходит.'},
+{category:'immigration',severity:'info',text_en:'CMN: 20-40 min. Many nationalities need visa (US/UK/EU get 90-day visa-free). Have hotel reservation and return ticket printed.',text_ru:'CMN: 20–40 минут. США/ЕС — 90 дней без визы.'},
+{category:'navigation',severity:'info',text_en:'CMN has T1 (international) and T2 (domestic) connected by walkway (5 min). Small airport — easy to navigate. Allow 1h for connections.',text_ru:'CMN: T1 (меж) и T2 (внутр.) — переход (5 мин). Небольшой аэропорт.'},
+]},
+];
+</script>
+<script>
+// ============================================================
+// APP STATE & UTILITIES
+// ============================================================
+let lang = localStorage.getItem('ti-lang') || 'en';
+let soundOn = localStorage.getItem('ti-sound') === 'true';
+let savedTips = JSON.parse(localStorage.getItem('ti-saved') || '[]');
+let recentSearches = JSON.parse(localStorage.getItem('ti-recent') || '[]');
+let currentAirport = null;
+let currentContinent = 'all';
+let currentCategory = 'all';
+let currentScreen = 'home';
+
+function t(key) { return T[lang][key] || key; }
+function getText(obj) { return lang==='en'?obj.text_en:obj.text_ru; }
+function getCountry(airport) { return lang==='en'?airport.country:airport.countryRu; }
+
+// Sound Engine (Web Audio API)
+let audioCtx = null;
+function initAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+function playSound(name) {
+  if (!soundOn) return;
+  initAudio();
+  const ctx = audioCtx;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  gain.gain.value = 0.08;
+  if (name==='ding') { osc.frequency.value=880; osc.type='sine'; gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.3); osc.start(); osc.stop(ctx.currentTime+0.3); }
+  if (name==='whoosh') { osc.frequency.value=200; osc.type='sawtooth'; gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.2); osc.start(); osc.stop(ctx.currentTime+0.2); }
+  if (name==='click') { osc.frequency.value=660; osc.type='sine'; gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.1); osc.start(); osc.stop(ctx.currentTime+0.1); }
+}
+
+// Global state init
+document.addEventListener('DOMContentLoaded', () => {
+  initAudio();
+  applyLanguage();
+  renderContinentFilter();
+  renderHome();
+  renderPopularSearches();
+  updateSaved();
+  updateSoundUI();
+  updateLangButtons();
+  
+  // Home search
+  document.getElementById('search-input').addEventListener('input', (e) => {
+    const q = e.target.value.trim().toLowerCase();
+    if (q.length > 0) { showSearchScreenFromHome(q); }
+    else { renderHome(); }
+  });
+  
+  // Search screen
+  document.getElementById('search-input-lg').addEventListener('input', (e) => {
+    const q = e.target.value.trim().toLowerCase();
+    if (q.length > 0) performSearch(q);
+    else document.getElementById('search-results').innerHTML = '';
+  });
+  
+  document.getElementById('search-cancel-btn').addEventListener('click', () => { switchScreen('home'); });
+  
+  // Back button
+  document.getElementById('back-btn').addEventListener('click', () => { switchScreen('home'); });
+  
+  // Bottom nav
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const scr = item.dataset.screen;
+      if (scr === 'language') { toggleLang(); return; }
+      switchScreen(scr);
+    });
+  });
+  
+  // Continent filter
+  document.getElementById('continent-filter').addEventListener('click', (e) => {
+    const chip = e.target.closest('.continent-chip');
+    if (!chip) return;
+    document.querySelectorAll('.continent-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    currentContinent = chip.dataset.continent;
+    renderHome();
+  });
+  
+  // Lang buttons
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.lang === lang) return;
+      lang = btn.dataset.lang;
+      localStorage.setItem('ti-lang', lang);
+      applyLanguage();
+      updateLangButtons();
+      playSound('whoosh');
+      renderHome();
+      if (currentAirport) renderAirportDetail(currentAirport.code);
+    });
+  });
+  
+  // Sound toggle
+  document.getElementById('sound-toggle').addEventListener('click', () => {
+    soundOn = !soundOn;
+    localStorage.setItem('ti-sound', soundOn);
+    updateSoundUI();
+    if (soundOn) playSound('click');
+  });
+  
+  // Clear saved
+  document.getElementById('clear-saved-btn').addEventListener('click', () => {
+    if (confirm(lang==='en'?'Clear all saved tips?':'Удалить все сохранённые советы?')) {
+      savedTips = [];
+      localStorage.setItem('ti-saved', '[]');
+      updateSaved();
+      playSound('click');
+    }
+  });
+});
+
+function applyLanguage() {
+  document.getElementById('disclaimer-text').textContent = t('disclaimer');
+  document.getElementById('saved-title').textContent = t('saved-title');
+  document.getElementById('search-input').placeholder = t('search-placeholder');
+  document.getElementById('search-input-lg').placeholder = t('search-placeholder-lg');
+  document.getElementById('search-cancel-btn').textContent = t('search-cancel');
+  document.getElementById('clear-saved-btn').textContent = t('clear-all');
+  const empty = document.getElementById('saved-empty');
+  empty.querySelector('h3').textContent = t('saved-empty-title');
+  empty.querySelector('p').textContent = t('saved-empty-text');
+  document.querySelectorAll('[data-tkey]').forEach(el => {
+    el.textContent = t(el.dataset.tkey);
+  });
+  renderPopularSearches();
+}
+
+function updateLangButtons() {
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.lang === lang);
+  });
+}
+
+function updateSoundUI() {
+  document.getElementById('sound-toggle').textContent = soundOn ? '🔊' : '🔇';
+  document.getElementById('sound-toggle').title = soundOn ? t('sound-on') : t('sound-off');
+}
+
+// ============================================================
+// SCREEN ROUTER
+// ============================================================
+function switchScreen(screen, data) {
+  const screens = ['home','airport','search','saved'];
+  const currentEl = document.getElementById(`screen-${currentScreen}`);
+  if (currentScreen !== 'home' && currentScreen === screen) {
+    if (screen==='airport') { if (data && data.code === currentAirport?.code) return; }
+    else return;
+  }
+  screens.forEach(s => {
+    const el = document.getElementById(`screen-${s}`);
+    if (!el) return;
+    el.classList.remove('active');
+    el.style.display = 'none';
+  });
+  
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.screen === screen));
+  
+  currentScreen = screen;
+  const target = document.getElementById(`screen-${screen}`);
+  if (target) {
+    target.style.display = 'block';
+    // Trigger reflow for animation
+    void target.offsetWidth;
+    target.classList.remove('screen-enter');
+    // Remove and re-add for animation
+    target.classList.add('active');
+    target.classList.add('fadeIn');
+  }
+  
+  // Show/hide search bar & continent filter
+  document.getElementById('search-bar').style.display = screen==='home'?'block':'none';
+  document.getElementById('continent-filter').style.display = screen==='home'?'flex':'none';
+  
+  if (screen === 'saved') updateSaved();
+  if (screen === 'search') {
+    const slg = document.getElementById('search-input-lg');
+    slg.value = '';
+    slg.focus();
+    document.getElementById('search-results').innerHTML = '';
+  }
+  if (screen === 'airport' && data) renderAirportDetail(data.code || data);
+  if (screen === 'home') { currentAirport = null; renderHome(); }
+  
+  window.scrollTo({top:0,behavior:'smooth'});
+  playSound('whoosh');
+}
+
+// ============================================================
+// RENDER FUNCTIONS
+// ============================================================
+function renderContinentFilter() {
+  const container = document.getElementById('continent-filter');
+  container.innerHTML = '';
+  const contKeys = ['all','americas','europe','asia','middle-east','africa-oceania'];
+  contKeys.forEach(key => {
+    const chip = document.createElement('button');
+    chip.className = `continent-chip ${key === currentContinent ? 'active' : ''}`;
+    chip.dataset.continent = key;
+    chip.textContent = continentNames[lang][key] || continentNames.en[key];
+    container.appendChild(chip);
+  });
+}
+
+function renderHome(filterContinent) {
+  const grid = document.getElementById('airport-grid');
+  const searchVal = document.getElementById('search-input').value.trim().toLowerCase();
+  
+  let filtered = airports;
+  
+  // Continent filter
+  if (currentContinent !== 'all') {
+    filtered = filtered.filter(a => a.continent === currentContinent);
+  }
+  
+  // Search filter
+  if (searchVal.length > 0) {
+    filtered = filtered.filter(a => 
+      a.code.toLowerCase().includes(searchVal) || 
+      a.city.toLowerCase().includes(searchVal) || 
+      a.country.toLowerCase().includes(searchVal) ||
+      a.countryRu.toLowerCase().includes(searchVal)
+    );
+  }
+  
+  if (filtered.length === 0 && searchVal.length === 0) {
+    grid.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:40px 0;grid-column:1/-1">No airports found</p>';
+    return;
+  }
+  
+  grid.innerHTML = '';
+  filtered.forEach((airport, i) => {
+    const card = document.createElement('div');
+    card.className = 'airport-card';
+    card.style.animationDelay = `${i * 30}ms`;
+    card.innerHTML = `
+      <div class="flag">${airport.flag}</div>
+      <div class="code">${airport.code}</div>
+      <div class="city">${airport.city}</div>
+      <div class="country">${getCountry(airport)}</div>
+      <div class="meta">
+        <div class="stress-dots">${'<span class="stress-dot' + (airport.difficulty >= 1 ? ' filled' : '') + '"></span>'.repeat(5) }</div>
+        <span class="tip-badge">${airport.tips.length} ${t('tips')}</span>
+      </div>
+    `;
+    card.addEventListener('click', () => {
+      playSound('ding');
+      switchScreen('airport', airport);
+    });
+    grid.appendChild(card);
+  });
+  
+  // Update stress dot colors
+  grid.querySelectorAll('.airport-card').forEach((card, idx) => {
+    const dots = card.querySelectorAll('.stress-dot.filled');
+    const stress = filtered[idx].difficulty;
+    dots.forEach((dot, di) => {
+      if (di < stress) {
+        if (stress <= 2) dot.classList.add('easy');
+        else if (stress <= 3) dot.classList.add('medium');
+        else dot.classList.add('hard');
+      }
+    });
+  });
+}
+
+function renderAirportDetail(code) {
+  const airport = airports.find(a => a.code === code);
+  if (!airport) { switchScreen('home'); return; }
+  currentAirport = airport;
+  
+  // Hero
+  document.getElementById('airport-hero').innerHTML = `
+    <div class="flag">${airport.flag}</div>
+    <div class="code">${airport.code}</div>
+    <div class="location">${airport.city}, ${getCountry(airport)}</div>
+    <div class="quick-info">
+      <span class="quick-chip">${airport.terminals} ${t('terminals')}</span>
+      <span class="quick-chip">${'●'.repeat(airport.difficulty)}${'○'.repeat(5-airport.difficulty)} ${t('difficulty')}</span>
+      <span class="quick-chip">${airport.tips.length} ${t('tips')}</span>
+    </div>
+  `;
+  document.getElementById('airport-header-title').textContent = airport.code;
+  
+  // Category filter
+  currentCategory = 'all';
+  renderCategoryFilter(airport);
+  
+  // Tips
+  renderTips(airport, 'all');
+}
+
+function renderCategoryFilter(airport) {
+  const container = document.getElementById('category-filter');
+  container.innerHTML = '';
+  const cats = ['all',...new Set(airport.tips.map(t => t.category))];
+  cats.forEach(cat => {
+    const chip = document.createElement('button');
+    chip.className = `cat-chip ${cat === currentCategory ? 'active' : ''}`;
+    chip.dataset.cat = cat;
+    chip.textContent = catNames[lang][cat] || cat;
+    if (cat !== 'all' && categoryIcons[cat]) {
+      chip.innerHTML = `${categoryIcons[cat]} ${catNames[lang][cat] || cat}`;
+    }
+    container.appendChild(chip);
+  });
+  
+  container.addEventListener('click', (e) => {
+    const chip = e.target.closest('.cat-chip');
+    if (!chip) return;
+    document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    currentCategory = chip.dataset.cat;
+    renderTips(airport, currentCategory);
+  });
+}
+
+function renderTips(airport, category) {
+  const list = document.getElementById('tips-list');
+  let tips = airport.tips;
+  if (category !== 'all') tips = tips.filter(t => t.category === category);
+  
+  if (tips.length === 0) {
+    list.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:20px">' + t('no-results') + '</p>';
+    return;
+  }
+  
+  list.innerHTML = '';
+  tips.forEach((tip, i) => {
+    const savedId = `${airport.code}_${i}`;
+    const isSaved = savedTips.includes(savedId);
+    const text = getText(tip);
+    const isLong = text.length > 150;
+    
+    const card = document.createElement('div');
+    card.className = 'tip-card';
+    card.style.animationDelay = `${i * 50}ms`;
+    card.innerHTML = `
+      <div class="severity-bar ${tip.severity}"></div>
+      <div class="tip-header">
+        <div class="tip-category">
+          <span class="icon">${categoryIcons[tip.category] || '📌'}</span>
+          ${catNames[lang][tip.category] || tip.category}
+        </div>
+        <button class="save-btn ${isSaved ? 'saved' : ''}" data-id="${savedId}">${isSaved ? '❤️' : '🤍'}</button>
+      </div>
+      <div class="tip-text ${isLong ? 'expandable' : ''}" data-expanded="false">${text}</div>
+      ${isLong ? `<button class="tip-expand-hint">${t('tap-expand')}</button>` : ''}
+    `;
+    
+    // Save toggle
+    card.querySelector('.save-btn').addEventListener('click', function(e) {
+      e.stopPropagation();
+      const id = this.dataset.id;
+      const idx = savedTips.indexOf(id);
+      if (idx > -1) {
+        savedTips.splice(idx, 1);
+        this.classList.remove('saved');
+        this.textContent = '🤍';
+      } else {
+        savedTips.push(id);
+        this.classList.add('saved', 'animate');
+        this.textContent = '❤️';
+        setTimeout(() => this.classList.remove('animate'), 400);
+      }
+      localStorage.setItem('ti-saved', JSON.stringify(savedTips));
+      playSound('click');
+    });
+    
+    // Expand long tip
+    if (isLong) {
+      const textEl = card.querySelector('.tip-text');
+      const hint = card.querySelector('.tip-expand-hint');
+      hint.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const expanded = textEl.dataset.expanded === 'true';
+        textEl.classList.toggle('expanded', !expanded);
+        textEl.dataset.expanded = !expanded;
+        hint.textContent = expanded ? t('tap-expand') : t('tap-collapse');
+      });
+    }
+    
+    list.appendChild(card);
+    
+    // Stagger entrance
+    setTimeout(() => card.classList.add('show'), i * 50);
+  });
+}
+
+// ============================================================
+// SEARCH
+// ============================================================
+function showSearchScreenFromHome(query) {
+  switchScreen('search');
+  const slg = document.getElementById('search-input-lg');
+  slg.value = query;
+  performSearch(query);
+}
+
+function performSearch(query) {
+  const results = document.getElementById('search-results');
+  if (!query || query.length < 1) { results.innerHTML = ''; return; }
+  
+  // Add to recent
+  if (!recentSearches.includes(query)) {
+    recentSearches.unshift(query);
+    if (recentSearches.length > 5) recentSearches.pop();
+    localStorage.setItem('ti-recent', JSON.stringify(recentSearches));
+  }
+  
+  const q = query.toLowerCase();
+  
+  // Search airports
+  const airportResults = airports.filter(a => 
+    a.code.toLowerCase().includes(q) ||
+    a.city.toLowerCase().includes(q) ||
+    a.country.toLowerCase().includes(q)
+  );
+  
+  // Search tips
+  const tipResults = [];
+  airports.forEach(a => {
+    a.tips.forEach((tip, i) => {
+      const text = getText(tip).toLowerCase();
+      if (text.includes(q)) {
+        tipResults.push({ airport: a, tip, tipIndex: i });
+      }
+    });
+  });
+  
+  let html = '';
+  if (airportResults.length > 0) {
+    html += `<div class="search-section-title">${t('search-results-airports')} (${airportResults.length})</div>`;
+    airportResults.forEach(a => {
+      html += `<div class="search-result-item" data-code="${a.code}">
+        <div class="result-title">${a.flag} ${a.code} — ${a.city}, ${getCountry(a)}</div>
+        <div class="result-sub">${a.tips.length} ${t('tips')}</div>
+      </div>`;
+    });
+  }
+  
+  if (tipResults.length > 0) {
+    html += `<div class="search-section-title">${t('search-results-tips')} (${tipResults.length})</div>`;
+    tipResults.forEach((r, i) => {
+      if (i > 20) return;
+      const text = getText(r.tip);
+      html += `<div class="search-result-item" data-code="${r.airport.code}" data-tip="${r.tipIndex}">
+        <div class="result-title">${r.airport.flag} ${r.airport.code}: ${r.airport.city}</div>
+        <div class="result-preview">${text.substring(0, 100)}...</div>
+      </div>`;
+    });
+  }
+  
+  if (!html) {
+    html = `<p style="color:var(--text-muted);text-align:center;padding:20px">${t('no-results')}</p>`;
+  }
+  
+  results.innerHTML = html;
+  
+  // Click handlers
+  results.querySelectorAll('.search-result-item').forEach(el => {
+    el.addEventListener('click', () => {
+      const code = el.dataset.code;
+      playSound('ding');
+      switchScreen('airport', {code});
+    });
+  });
+}
+
+function renderPopularSearches() {
+  const container = document.getElementById('popular-searches');
+  const popularTerms = ['taxi','wifi','sleep','food','scam','free wifi','cheap'];
+  let html = '';
+  if (recentSearches.length > 0) {
+    html += `<span style="color:var(--text-muted);font-size:12px;padding:4px 0">${t('recent-searches')}:</span>`;
+    recentSearches.forEach(s => {
+      html += `<button class="popular-tag" data-q="${s}">${s}</button>`;
+    });
+  }
+  html += `<span style="color:var(--text-muted);font-size:12px;padding:4px 0">${t('popular-searches')}:</span>`;
+  popularTerms.forEach(s => {
+    html += `<button class="popular-tag" data-q="${s}">${s}</button>`;
+  });
+  container.innerHTML = html;
+  
+  container.querySelectorAll('.popular-tag').forEach(tag => {
+    tag.addEventListener('click', () => {
+      const q = tag.dataset.q;
+      document.getElementById('search-input-lg').value = q;
+      performSearch(q);
+      playSound('click');
+    });
+  });
+}
+
+// ============================================================
+// SAVED TIPS
+// ============================================================
+function updateSaved() {
+  const list = document.getElementById('saved-list');
+  const empty = document.getElementById('saved-empty');
+  const header = document.getElementById('saved-header');
+  
+  if (savedTips.length === 0) {
+    list.innerHTML = '';
+    empty.style.display = 'flex';
+    return;
+  }
+  empty.style.display = 'none';
+  
+  // Group by airport
+  const grouped = {};
+  savedTips.forEach(id => {
+    const [code, idx] = id.split('_');
+    if (!grouped[code]) grouped[code] = [];
+    grouped[code].push(parseInt(idx));
+  });
+  
+  let html = '';
+  Object.keys(grouped).sort().forEach(code => {
+    const airport = airports.find(a => a.code === code);
+    if (!airport) return;
+    html += `<div class="saved-group"><div class="saved-group-title">${airport.flag} ${airport.code} — ${airport.city}</div>`;
+    grouped[code].forEach(idx => {
+      const tip = airport.tips[idx];
+      if (!tip) return;
+      const text = getText(tip);
+      html += `<div class="tip-card" style="margin-bottom:8px">
+        <div class="severity-bar ${tip.severity}"></div>
+        <div class="tip-header">
+          <div class="tip-category"><span class="icon">${categoryIcons[tip.category]||'📌'}</span>${catNames[lang][tip.category]||tip.category}</div>
+        </div>
+        <div class="tip-text" style="font-size:14px">${text}</div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  list.innerHTML = html;
+}
+</script>
+</body>
+</html>
