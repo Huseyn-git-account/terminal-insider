@@ -15,7 +15,7 @@
 html{height:100%;scroll-behavior:smooth}
 body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;padding-bottom:calc(72px + var(--safe-bottom))}
 #app{max-width:480px;margin:0 auto;position:relative;min-height:100vh;min-height:100dvh}
-#header{position:sticky;top:0;z-index:100;padding:26px 26px 18px;background:var(--bg);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+#header{position:sticky;top:0;z-index:100;padding:66px 16px 18px;background:var(--bg);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
 #header-title{font-size:22px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px}
 #header-title span{color:var(--accent)}
 #header-controls{display:flex;align-items:center;gap:4px}
@@ -94,7 +94,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .tip-card .tip-text.expanded{-webkit-line-clamp:unset}
 .tip-card .tip-expand-hint{color:var(--accent);font-size:12px;margin-top:4px;cursor:pointer;background:none;border:none;font-family:var(--font);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 #search-screen .search-header{display:flex;align-items:center;gap:8px;padding-bottom:12px}
-#search-screen #search-input-lg{flex:1;padding:12px 16px;background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius-sm);color:var(--text);font-size:15px;font-family:var(--font);outline:none;transition:border-color .2s}
+#search-screen #search-input-lg{flex:1;padding:32px 36px;background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius-sm);color:var(--text);font-size:15px;font-family:var(--font);outline:none;transition:border-color .2s}
 #search-screen #search-input-lg:focus{border-color:var(--accent)}
 #search-screen #search-input-lg::placeholder{color:var(--text-muted)}
 #search-cancel-btn{background:none;border:none;color:var(--accent);font-size:14px;font-weight:500;cursor:pointer;font-family:var(--font);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
@@ -166,7 +166,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 </div>
 <nav id="bottom-nav">
 <button class="nav-item active" data-screen="home"><span class="nav-icon">🏠</span><span class="nav-label" data-tkey="nav-home">Home</span></button>
-<button class="nav-item" data-screen="search"><span class="nav-icon">🔍</span><span class="nav-label" data-tkey="nav-search">Search</span></button>
 <button class="nav-item" data-screen="saved"><span class="nav-icon">⭐</span><span class="nav-label" data-tkey="nav-saved">Saved</span></button>
 </nav>
 <script>
