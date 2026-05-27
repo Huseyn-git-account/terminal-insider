@@ -1197,10 +1197,7 @@ function renderHome(filterContinent) {
       <div class="code">${airport.code}</div>
       <div class="city">${airport.city}</div>
       <div class="country">${getCountry(airport)}</div>
-      <div class="meta">
-        <div class="stress-dots">${'<span class="stress-dot' + (airport.difficulty >= 1 ? ' filled' : '') + '"></span>'.repeat(5) }</div>
-        <span class="tip-badge">${airport.tips.length} ${t('tips')}</span>
-      </div>
+      
     `;
     card.addEventListener('click', () => {
       playSound('ding');
